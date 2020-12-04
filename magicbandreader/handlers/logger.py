@@ -1,13 +1,20 @@
 import logging
 
-
-def handle_authorized_event(event):
-    logging.info(f'{event.id} was authorized for {event.permission}')
+from magicbandreader.handlers import AbstractHandler
 
 
-def handle_unauthorized_event(event):
-    logging.warn(f'{event.id} was NOT authorized for {event.permission}')
+class LoggingHandler(AbstractHandler):
+    def handle_authorized_event(self, event):
+        logging.info(f'{event.id} was authorized for {event.authorizer.permission}')
 
 
-def handle_none_event(event):
-    logging.error('Received an event of None, this should not be possible.')
+    def handle_unauthorized_event(self, event):
+        logging.warn(f'{event.id} was NOT authorized for {event.authorizer.permission}')
+
+
+    def handle_none_event(self, event):
+        logging.error('Received an event of None, this should not be possible.')
+
+
+def register(ctx):
+    return LoggingHandler()
