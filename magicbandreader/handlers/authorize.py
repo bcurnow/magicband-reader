@@ -26,5 +26,6 @@ def register(ctx):
     return AuthorizationHandler(ctx,
                                 RfidSecuritySvcAuthorizer(
                                     ctx.api_url,
-                                    ctx.api_key
+                                    ctx.api_key,
+                                    ctx.api_ssl_verify,
                                 ))
