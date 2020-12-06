@@ -10,12 +10,16 @@ from magicbandreader.handlers import register_handlers
 from magicbandreader.led import LedController
 
 
-def _validate_volume_level(ctx, param, value):
+def _validate_float_percentage_range(ctx, param, value):
+    """ Used by the click framework to validate the a range of float values representing percentages."""
     if not (value >= 0.0 and value <= 1.0):
         raise click.BadParameter('must be in the range 0.0 - 1.0 (inclusive)')
 
     if value == 0.0:
-        click.secho('Volume set to zero (0), sound will not be audible', fg='red')
+        if param.name == 'brightness_level':
+            click.secho('Brightness set to zero (0), no lights will be shown.', fg='red')
+        if param.name == 'volume_level':
+            click.secho('Volume set to zero (0), sound will not be audible.', fg='red')
 
     return value
 
@@ -41,7 +45,8 @@ def _validate_sound_file(ctx, param, sound_file):
               required=True,
               help='The API key to authenticate to rfid-security-svc.'
               )
-@click.option('--log-level',
+@click.option('-l',
+              '--log-level',
               type=click.Choice(['debug', 'info', 'warning', 'error', 'critical'], case_sensitive=False),
               default='warning',
               show_default=True,
@@ -53,11 +58,12 @@ def _validate_sound_file(ctx, param, sound_file):
               show_default=True,
               help='The name of the RFID device.'
               )
-@click.option('--volume-level',
+@click.option('-v',
+              '--volume-level',
               default=.1,
               show_default=True,
               help='The volume sounds should be played at. Range of 0.0 to 1.0 inclusive.',
-              callback=_validate_volume_level
+              callback=_validate_float_percentage_range
               )
 @click.option('-s',
               '--sound-dir',
@@ -77,18 +83,36 @@ def _validate_sound_file(ctx, param, sound_file):
               help='The name of the sound file when a band is unauthorized.',
               callback=_validate_sound_file
               )
+@click.option('-b',
+              '--brightness-level',
+              default=.5,
+              show_default=True,
+              help='The brightness level of the LEDs. Range of 0.0 to 1.0 inclusive.',
+              callback=_validate_float_percentage_range
+              )
+@click.option('-o',
+              '--outer-pixel-count',
+              default=40,
+              show_default=True,
+              help='The number of pixels that make up the outer ring.',
+              )
+@click.option('-i',
+              '--inner-pixel-count',
+              default=15,
+              show_default=True,
+              help='The number of pixels that make up the inner ring.'
+              )
 @click.pass_context
-def main(click_ctx, api_url, api_key, log_level, device_name, volume_level, sound_dir, authorized_sound, unauthorized_sound):
-    logging.basicConfig(level=getattr(logging, log_level.upper()), format='%(asctime)s %(levelname)s %(message)s')
-    ctx = SimpleNamespace(**click_ctx.params)
+def main(click_ctx, **config):
+    ctx = SimpleNamespace(**config)
+    logging.basicConfig(level=getattr(logging, ctx.log_level.upper()), format='%(asctime)s %(levelname)s %(message)s')
     ctx.led_controller = LedController()
     handlers = register_handlers(ctx)
-    reader = rfidreader.RFIDReader(device_name)
+    reader = rfidreader.RFIDReader(ctx.device_name)
     logging.info('Waiting for MagicBand...')
     while True:
         rfid_id = reader.read()
         # Need to create the event once, handlers may update attributes
         event = Event(rfid_id, ctx)
         for handler in handlers:
-            print(handler)
             handler.handle_event(event)
