@@ -1,13 +1,9 @@
-
-from enum import Enum, auto
 from importlib import import_module
+import logging
 from pkgutil import iter_modules
 
+from magicbandreader.event import EventType
 
-class EventType(Enum):
-    NONE = auto()
-    AUTHORIZED = auto()
-    UNAUTHORIZED = auto()
 
 class AbstractHandler():
     def __init__(self, priority=100):
@@ -18,9 +14,14 @@ class AbstractHandler():
             EventType.UNAUTHORIZED: self.handle_unauthorized_event,
         }
 
-    def handle_event(self, event, event_type):
+    def handle_event(self, event):
         """ Method called to handle an event, this method delegates to the handle_*_event methods as appropriate."""
-        self._method_map[event_type](event)
+        if event.type:
+            self._method_map[event.type](event)
+        else:
+            logging.warn(
+                f'handle_event called on {self.__class__.__name__} (priority: {self.priority}) but the event has no type. Please check the priority order of the handlers.')
+
 
     def handle_authorized_event(self, event):
         """ Called when authorization for an event has succeeded."""
