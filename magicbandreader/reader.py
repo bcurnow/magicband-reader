@@ -113,7 +113,9 @@ def _validate_sound_file(ctx, param, sound_file):
 @click.pass_context
 def main(click_ctx, **config):
     ctx = SimpleNamespace(**config)
-    logging.basicConfig(level=getattr(logging, ctx.log_level.upper()), format='%(asctime)s %(levelname)s %(pathname)s (line: %(lineno)d): %(message)s')
+    logging.basicConfig(level=getattr(logging, ctx.log_level.upper()),
+                        format='%(asctime)s %(levelname)s %(pathname)s (line: %(lineno)d): %(message)s'
+                        )
     ctx.led_controller = LedController(brightness=ctx.brightness_level, outer_pixels=ctx.outer_pixel_count, inner_pixels=ctx.inner_pixel_count)
     handlers = register_handlers(ctx)
     reader = rfidreader.RFIDReader(ctx.device_name)
