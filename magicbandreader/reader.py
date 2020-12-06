@@ -3,8 +3,10 @@ import os
 from types import SimpleNamespace
 
 import click
+import click_config_file
 import rfidreader
 
+from magicbandreader.config import yaml_config
 from magicbandreader.event import Event
 from magicbandreader.handlers import register_handlers
 from magicbandreader.led import LedController
@@ -32,81 +34,87 @@ def _validate_sound_file(ctx, param, sound_file):
     raise click.BadParameter(f'{full_path} does not exist')
 
 
-@click.command()
+@click.command(context_settings=dict(max_content_width=500, show_default=True, auto_envvar_prefix='MR'))
+@click_config_file.configuration_option('-c', '--config', implicit=False, help='Read configuration from YAML file.', provider=yaml_config)
 @click.option('-u',
               '--api-url',
-              default='https://192.168.0.42:5000/api/v1.0/',
-              show_default=True,
-              help='The rfid-security-svc base URL.'
+              default='https://ubuntu-devpi.local:5000/api/v1.0/',
+              help='The rfid-security-svc base URL.',
+              show_envvar=True,
               )
 @click.option('-k',
               '--api-key',
-              envvar='MR_API_KEY',
               required=True,
-              help='The API key to authenticate to rfid-security-svc.'
+              help='The API key to authenticate to rfid-security-svc.',
+              show_envvar=True,
+              )
+@click.option('--api-ssl-verify',
+              default='CA.pem',
+              help='If True or a valid file reference, performs SSL validateion, if false, skips validation (this is insecure!).',
+              show_envvar=True,
               )
 @click.option('-l',
               '--log-level',
               type=click.Choice(['debug', 'info', 'warning', 'error', 'critical'], case_sensitive=False),
               default='warning',
-              show_default=True,
               help='The logging level.',
+              show_envvar=True,
               )
 @click.option('-d',
               '--device-name',
               default='/dev/input/rfid',
-              show_default=True,
-              help='The name of the RFID device.'
+              help='The name of the RFID device.',
+              show_envvar=True,
               )
 @click.option('-v',
               '--volume-level',
               default=.1,
-              show_default=True,
               help='The volume sounds should be played at. Range of 0.0 to 1.0 inclusive.',
-              callback=_validate_float_percentage_range
+              callback=_validate_float_percentage_range,
+              show_envvar=True,
               )
 @click.option('-s',
               '--sound-dir',
               default='/sounds',
-              show_default=True,
-              help='The directory containing the sound files.'
+              help='The directory containing the sound files.',
+              show_envvar=True,
               )
 @click.option('--authorized-sound',
               default='be-our-guest-be-our-guest-put-our-service-to-the-test.wav',
-              show_default=True,
               help='The name of the sound file when a band is authorized.',
-              callback=_validate_sound_file
+              callback=_validate_sound_file,
+              show_envvar=True,
               )
 @click.option('--unauthorized-sound',
               default='is-my-hair-out.wav',
-              show_default=True,
               help='The name of the sound file when a band is unauthorized.',
-              callback=_validate_sound_file
+              callback=_validate_sound_file,
+              show_envvar=True,
               )
 @click.option('-b',
               '--brightness-level',
               default=.5,
-              show_default=True,
               help='The brightness level of the LEDs. Range of 0.0 to 1.0 inclusive.',
-              callback=_validate_float_percentage_range
+              callback=_validate_float_percentage_range,
+              show_envvar=True,
               )
 @click.option('-o',
               '--outer-pixel-count',
               default=40,
-              show_default=True,
               help='The number of pixels that make up the outer ring.',
+              show_envvar=True,
               )
 @click.option('-i',
               '--inner-pixel-count',
               default=15,
-              show_default=True,
-              help='The number of pixels that make up the inner ring.'
+              help='The number of pixels that make up the inner ring.',
+              show_envvar=True,
               )
 @click.pass_context
 def main(click_ctx, **config):
     ctx = SimpleNamespace(**config)
-    logging.basicConfig(level=getattr(logging, ctx.log_level.upper()), format='%(asctime)s %(levelname)s %(message)s')
-    ctx.led_controller = LedController()
+    logging.basicConfig(level=getattr(logging, ctx.log_level.upper()), format='%(asctime)s %(levelname)s %(pathname)s (line: %(lineno)d): %(message)s')
+    ctx.led_controller = LedController(brightness=ctx.brightness_level, outer_pixels=ctx.outer_pixel_count, inner_pixels=ctx.inner_pixel_count)
     handlers = register_handlers(ctx)
     reader = rfidreader.RFIDReader(ctx.device_name)
     logging.info('Waiting for MagicBand...')
