@@ -1,7 +1,8 @@
 import threading
 
 from magicbandreader.handlers import AbstractHandler
-from magicbandreader.led import LedController, LedColor
+from magicbandreader.led import LedColor
+
 
 class SpinHandler(AbstractHandler):
     """ Spins the lights around the main ring."""
@@ -16,6 +17,7 @@ class SpinHandler(AbstractHandler):
         )
         self.ctx.spin_thread = t
         t.start()
+
 
 def register(ctx):
     return SpinHandler(ctx)
