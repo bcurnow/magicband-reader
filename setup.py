@@ -23,7 +23,7 @@ setup(
     python_requires='>=3.9',
     install_requires=[
         'Click',
-        'rfidreader@https://github.com/bcurnow/rfid-reader/releases/download/1.0.0/rfidreader-1.0.0-py3-none-any.whl',
+        'rfidreader@https://github.com/bcurnow/rfid-reader/releases/download/1.0.1/rfidreader-1.0.1-py3-none-any.whl',
         'Pygame',
         'RPi.GPIO',
         'adafruit-circuitpython-neopixel',
