@@ -1,13 +1,12 @@
 import logging
-import threading
 
 from magicbandreader.handlers import AbstractHandler
-from magicbandreader.led import LedController, LedColor
+
 
 class WaitForSpinHandler(AbstractHandler):
     """ Spins the lights around the main ring."""
     def __init__(self, ctx):
-        super().__init__(priority=2)
+        super().__init__(priority=20)
         self.ctx = ctx
 
     def handle_event(self, event):
@@ -17,6 +16,7 @@ class WaitForSpinHandler(AbstractHandler):
             self.ctx.spin_thread.join()
         else:
             logging.warning('Unable to find spin_thread in context.')
+
 
 def register(ctx):
     return WaitForSpinHandler(ctx)
