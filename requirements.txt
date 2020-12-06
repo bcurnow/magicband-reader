@@ -3,6 +3,7 @@ coverage
 wheel
 flake8
 click
+click-config-file
 https://github.com/bcurnow/rfid-reader/releases/download/v1.0.1/rfidreader-1.0.1-py3-none-any.whl
 requests
 RPi.GPIO

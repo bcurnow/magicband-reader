@@ -23,6 +23,7 @@ setup(
     python_requires='>=3.7',
     install_requires=[
         'Click',
+        'click-config-file'
         'rfidreader@https://github.com/bcurnow/rfid-reader/releases/download/v1.0.1/rfidreader-1.0.1-py3-none-any.whl',
         'RPi.GPIO',
         'adafruit-circuitpython-neopixel',
