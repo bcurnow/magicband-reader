@@ -1,7 +1,8 @@
-from pygame
+from python:3
 
 RUN apt-get update && apt-get -y install --no-install-recommends \
     less \
+    libasound2-dev \
     vim \
     && rm -rf /var/lib/apt/lists/*
 
