@@ -25,6 +25,8 @@ class RfidSecuritySvcAuthorizer:
                 headers={'X-RFIDSECURITYSVC-API-KEY': quote(self.api_key)},
                 verify=self.api_ssl_verify
                 )
+            if response.status_code != 200 and response.status_code != 403:
+                logging.error(f'Unexpected status code back from {self.url.format(rfid_id)}: {response.status_code}')
             return response.status_code == 200
         except requests.exceptions.ConnectionError as e:
             logging.error(f'Unable to connect to {self.url.format(rfid_id)}: {e}.')
