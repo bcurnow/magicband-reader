@@ -3,7 +3,7 @@ coverage
 wheel
 flake8
 click
-https://github.com/bcurnow/rfid-reader/releases/download/1.0.1/rfidreader-1.0.1-py3-none-any.whl
+https://github.com/bcurnow/rfid-reader/releases/download/v1.0.1/rfidreader-1.0.1-py3-none-any.whl
 requests
 RPi.GPIO
 adafruit-circuitpython-neopixel
