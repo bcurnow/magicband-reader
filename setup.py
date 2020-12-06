@@ -20,10 +20,10 @@ setup(
         'Operating System :: OS Independent',
         'Natural Language :: English',
     ],
-    python_requires='>=3.9',
+    python_requires='>=3.7',
     install_requires=[
         'Click',
-        'rfidreader@https://github.com/bcurnow/rfid-reader/releases/download/1.0.1/rfidreader-1.0.1-py3-none-any.whl',
+        'rfidreader@https://github.com/bcurnow/rfid-reader/releases/download/v1.0.1/rfidreader-1.0.1-py3-none-any.whl',
         'RPi.GPIO',
         'adafruit-circuitpython-neopixel',
         'rpi-ws281x',
