@@ -24,10 +24,11 @@ setup(
     install_requires=[
         'Click',
         'rfidreader@https://github.com/bcurnow/rfid-reader/releases/download/1.0.1/rfidreader-1.0.1-py3-none-any.whl',
-        'Pygame',
         'RPi.GPIO',
         'adafruit-circuitpython-neopixel',
         'rpi-ws281x',
+        'pydub',
+        'simpleaudio'
     ],
     entry_points={
         'console_scripts': [
