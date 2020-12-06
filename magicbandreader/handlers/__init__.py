@@ -19,9 +19,10 @@ class AbstractHandler():
         if event.type:
             self._method_map[event.type](event)
         else:
-            logging.warn(
-                f'handle_event called on {self.__class__.__name__} (priority: {self.priority}) but the event has no type. Please check the priority order of the handlers.')
-
+            logging.warn((
+                f'handle_event called on {self.__class__.__name__} (priority: {self.priority}) but the event has no type. ',
+                'Please check the priority order of the handlers.'
+                ))
 
     def handle_authorized_event(self, event):
         """ Called when authorization for an event has succeeded."""
