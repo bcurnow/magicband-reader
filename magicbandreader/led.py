@@ -148,19 +148,6 @@ class LedColor(Enum):
 
 
 class LedController:
-    class Decorators:
-        @staticmethod
-        def reset(func):
-            """Decorator which ensures all the pixels are reset to defaults."""
-            @wraps(func)
-            def reset_impl(self, *args, **kwargs):
-                func(self, *args, **kwargs)
-                # Zero is equivalent to "off"
-                self.pixels.fill(0)
-                # Reset to default brightness
-                self.pixels.brightness = self.brightness
-            return reset_impl
-
     def __init__(self,
                  brightness=.5,
                  outer_pixels=40,
@@ -180,11 +167,10 @@ class LedController:
 
     def startup_sequence(self):
         """ Executes a specific pattern to provide a visual indicators that the controller is started."""
-        self.blink(LedColor.WHITE, brightness=.01, iterations=2, sleep_sec=.50)
+        self.blink(LedColor.WHITE, iterations=2, sleep_sec=.50)
 
-    @Decorators.reset
     def blink(self, led_color, brightness=None, iterations=3, sleep_sec=.25):
-        """ Implements a "blink" effect but turning on an off the lights."""
+        """ Implements a "blink" effect by turning on and off the lights."""
         self.pixels.brightness = self._brightness(brightness)
         for i in range(iterations):
             self.lights_on(led_color, brightness=self._brightness(brightness))
@@ -194,14 +180,12 @@ class LedController:
             if i < (iterations - 1):
                 time.sleep(sleep_sec)
 
-    @Decorators.reset
     def lights_on(self, led_color, brightness=None):
         """ Turns all the leds on to a specific color."""
         self.pixels.brightness = self._brightness(brightness)
         self.pixels.fill(led_color.value)
         self.pixels.show()
 
-    @Decorators.reset
     def fade_on(self, color, brightness=None, sleep_sec=.01):
         """ Turns all the leds on to a specific color but raises the brightness gradually."""
         target_brightness = self._brightness(brightness)
@@ -212,22 +196,22 @@ class LedController:
             self.pixels.show()
             time.sleep(sleep_sec)
 
-    @Decorators.reset
     def lights_off(self):
         """ Turns all the leds off."""
         self.pixels.fill(0)
         self.pixels.show()
 
-    @Decorators.reset
     def fade_off(self, brightness=None, sleep_sec=.01):
         """ Turns all the leds off but lowers the brightness grandually."""
         max_brightness = self._brightness(brightness)
-        for current_brightness in reversed(range((int(max_brightness * 100)))):
+        for current_brightness in reversed(range((int(max_brightness * 100)) + 1)):
             self.pixels.brightness = current_brightness / 100
             self.pixels.show()
             time.sleep(sleep_sec)
+        # Make sure to turn all the LEDs back off otherwise they'll remember the color
+        # they were and come back on with the next call to show()
+        self.pixels.fill(0)
 
-    @Decorators.reset
     def color_chase(self, color, brightness=None, sleep_sec=.1, reverse=False, effect_width=8):
         self.pixels.brightness = self._brightness(brightness)
         """ Creates a a moving set of leds, effect_width long, which move "around" the outer loop."""
@@ -253,6 +237,7 @@ class LedController:
         self.color_chase(color, self._brightness(brightness), .001, reverse, effect_width)
         self.color_chase(color, self._brightness(brightness), .0001, reverse, effect_width)
         self.color_chase(color, self._brightness(brightness), .0001, reverse, effect_width)
+
 
     def _brightness(self, brightness):
         if brightness:
