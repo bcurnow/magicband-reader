@@ -14,7 +14,7 @@ class Event():
         self.type = type
 
     def __str__(self):
-        return f'Event(id: {self.id}, type: {self.type}, ctx: {self.ctx})'
+        return self.__repr__()
 
     def __repr__(self):
-        return self._str__()
+        return f"Event('{self.id}', {self.ctx}, {self.type})"
