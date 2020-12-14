@@ -23,14 +23,7 @@ def load_sound(ctx, sound):
         return sound
 
 
-def play_sound(sound, background=False):
-    if background:
-        t = threading.Thread(target=_play_sound, args=(sound,))
-        t.start()
-        return t
-
-    _play_sound(sound)
-
-
-def _play_sound(sound):
-    play(sound)
+def play_sound(sound):
+    t = threading.Thread(target=play, args=(sound,))
+    t.start()
+    return t
