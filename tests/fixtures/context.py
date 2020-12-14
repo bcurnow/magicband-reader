@@ -17,6 +17,6 @@ def config():
         }
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def context(config):
     return SimpleNamespace(**config)
