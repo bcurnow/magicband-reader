@@ -24,4 +24,4 @@ class AuthorizationHandler(AbstractHandler):
 
 
 def register(ctx):
-    return AuthorizationHandler(ctx, RfdSecuritySvcAuthorizer(ctx))
+    return AuthorizationHandler(ctx, RfidSecuritySvcAuthorizer(ctx))

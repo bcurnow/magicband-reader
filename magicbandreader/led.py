@@ -1,5 +1,4 @@
 from enum import Enum
-from functools import wraps
 
 import board
 import neopixel
@@ -237,7 +236,6 @@ class LedController:
         self.color_chase(color, self._brightness(brightness), .001, reverse, effect_width)
         self.color_chase(color, self._brightness(brightness), .0001, reverse, effect_width)
         self.color_chase(color, self._brightness(brightness), .0001, reverse, effect_width)
-
 
     def _brightness(self, brightness):
         if brightness:
