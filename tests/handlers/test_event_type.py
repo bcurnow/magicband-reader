@@ -5,6 +5,16 @@ from magicbandreader.event import Event, EventType
 from magicbandreader.handlers.event_type import EventTypeHandler as Handler, register
 
 
+@patch('magicbandreader.handlers.event_type.RfidSecuritySvcAuthorizer')
+def test_Handler___init__(RfidSecuritySvcAuthorizer, context):
+    authorizer = RfidSecuritySvcAuthorizer.return_value
+    assert not hasattr(context, 'authorizer')
+    h = Handler(context, authorizer)
+    assert h.priority == 10
+    assert hasattr(context, 'authorizer')
+    assert context.authorizer == authorizer
+
+
 @pytest.mark.parametrize(
     ('event', 'authorized', 'event_type'),
     [
@@ -14,7 +24,7 @@ from magicbandreader.handlers.event_type import EventTypeHandler as Handler, reg
     ]
     )
 @patch('magicbandreader.handlers.event_type.RfidSecuritySvcAuthorizer')
-def test_handle_event(RfidSecuritySvcAuthorizer, event, authorized, event_type, context):
+def test_Handler_handle_event(RfidSecuritySvcAuthorizer, event, authorized, event_type, context):
     assert event.type is None
     authorizer = RfidSecuritySvcAuthorizer.return_value
     h = Handler(context, authorizer)
@@ -25,12 +35,6 @@ def test_handle_event(RfidSecuritySvcAuthorizer, event, authorized, event_type, 
     assert event.type == event_type
 
 
-@patch('magicbandreader.handlers.event_type.RfidSecuritySvcAuthorizer')
-def test_register(RfidSecuritySvcAuthorizer, context):
-    authorizer = RfidSecuritySvcAuthorizer.return_value
-    assert not hasattr(context, 'authorizer')
+def test_register(context):
     h = register(context)
-    assert h.priority == 10
-    assert context.authorizer == authorizer
-    assert context.authorizer == authorizer
     assert isinstance(h, Handler)
