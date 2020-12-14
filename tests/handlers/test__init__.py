@@ -20,7 +20,7 @@ class FakeHandler(AbstractHandler):
         self.handle_none_event_called = (event,)
 
 
-def test_AbstractHandler__init__():
+def test_AbstractHandler___init__():
     ah = AbstractHandler(400)
     assert ah.priority == 400
     assert ah._method_map == {
