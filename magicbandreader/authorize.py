@@ -6,12 +6,11 @@ import requests
 
 class RfidSecuritySvcAuthorizer:
     """ Uses the rfid-security-svc to authorize an rfid_id for a named permission. """
-    def __init__(self, api_url, api_key, api_ssl_verify=True, permission='Open Door'):
-        self.api_url = api_url
-        self.api_key = api_key
-        self.api_ssl_verify = api_ssl_verify
-        self.permission = permission
-        self.url = urljoin(api_url, f'authorized/media/{{}}/perm/{quote(permission)}')
+    def __init__(self, ctx):
+        self.headers = {'X-RFIDSECURITYSVC-API-KEY': quote(ctx.api_key)}
+        self.api_ssl_verify = ctx.api_ssl_verify
+        self.permission = ctx.permission
+        self.url = urljoin(ctx.api_url, f'authorized/media/{{}}/perm/{quote(self.permission)}')
 
     def authorized(self, rfid_id):
         """
@@ -19,15 +18,16 @@ class RfidSecuritySvcAuthorizer:
         Returns True if authorized.
         Returns False otherwise.
         """
+        url = self.url.format(rfid_id)
         try:
             response = requests.get(
-                self.url.format(rfid_id),
-                headers={'X-RFIDSECURITYSVC-API-KEY': quote(self.api_key)},
+                url,
+                headers=self.headers,
                 verify=self.api_ssl_verify
                 )
             if response.status_code != 200 and response.status_code != 403:
-                logging.error(f'Unexpected status code back from {self.url.format(rfid_id)}: {response.status_code}')
+                logging.error(f'Unexpected status code back from {url}: {response.status_code}')
             return response.status_code == 200
-        except requests.exceptions.ConnectionError as e:
-            logging.error(f'Unable to connect to {self.url.format(rfid_id)}: {e}.')
+        except requests.ConnectionError as e:
+            logging.error(f'Unable to connect to {url}: {e}.')
             return False
