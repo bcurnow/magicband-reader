@@ -1,5 +1,4 @@
 import requests
-from types import SimpleNamespace
 from urllib.parse import urljoin, quote
 
 import pytest
@@ -8,23 +7,12 @@ from unittest.mock import patch, PropertyMock
 from magicbandreader.authorize import RfidSecuritySvcAuthorizer
 
 
-CONFIG = {
-    'api_key': 'test key / & with space',
-    'api_url': 'test://testing.test',
-    'api_ssl_verify': 'sounds like a good idea',
-    'permission': 'Test',
-}
-
-
-CTX = SimpleNamespace(**CONFIG)
-
-
-def test__init__():
-    auth = RfidSecuritySvcAuthorizer(CTX)
-    assert auth.headers == {'X-RFIDSECURITYSVC-API-KEY': quote(CTX.api_key)}
-    assert auth.api_ssl_verify == CTX.api_ssl_verify
-    assert auth.permission == CTX.permission
-    assert auth.url == urljoin(CTX.api_url, f'authorized/media/{{}}/perm/{quote(CTX.permission)}')
+def test__init__(context):
+    auth = RfidSecuritySvcAuthorizer(context)
+    assert auth.headers == {'X-RFIDSECURITYSVC-API-KEY': quote(context.api_key)}
+    assert auth.api_ssl_verify == context.api_ssl_verify
+    assert auth.permission == context.permission
+    assert auth.url == urljoin(context.api_url, f'authorized/media/{{}}/perm/{quote(context.permission)}')
 
 
 @pytest.mark.parametrize(
@@ -38,13 +26,13 @@ def test__init__():
     )
 @patch('magicbandreader.authorize.logging')
 @patch('magicbandreader.authorize.requests.get')
-def test_authorized(get, logging, error, status_code):
+def test_authorized(get, logging, error, status_code, context):
     response = get.return_value
     mock_status_code = PropertyMock(name='status_code', return_value=status_code)
     type(response).status_code = mock_status_code
     if error:
         get.side_effect = error
-    authorizer = RfidSecuritySvcAuthorizer(CTX)
+    authorizer = RfidSecuritySvcAuthorizer(context)
     url = authorizer.url.format('test_id')
 
     ret = authorizer.authorized('test_id')
