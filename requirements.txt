@@ -11,3 +11,4 @@ adafruit-circuitpython-neopixel
 rpi-ws281x
 pydub
 simpleaudio
+pyyaml
