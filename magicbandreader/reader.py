@@ -110,6 +110,11 @@ def _validate_sound_file(ctx, param, sound_file):
               help='The number of pixels that make up the inner ring.',
               show_envvar=True,
               )
+@click.option('-p',
+              '--permission',
+              default='Open Door',
+              help='The name of the permission to validate before authorizing.',
+              show_envvar=True)
 @click.pass_context
 def main(click_ctx, **config):
     ctx = SimpleNamespace(**config)
