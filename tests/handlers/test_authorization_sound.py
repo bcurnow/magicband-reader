@@ -1,13 +1,11 @@
-from types import SimpleNamespace
-
 from unittest.mock import call, patch
 
-from magicbandreader.event import Event, EventType
 from magicbandreader.handlers.authorization_sound import AuthorizationSoundHandler as Handler, register
 
 
 AUTH_SOUND = object()
 UNAUTH_SOUND = object()
+
 
 @patch('magicbandreader.handlers.authorization_sound.play_sound')
 @patch('magicbandreader.handlers.authorization_sound.load_sound')
@@ -23,7 +21,6 @@ def test_handle_unauthorized_event(load_sound, play_sound, context, unauth_event
     h = handler(context, load_sound)
     h.handle_unauthorized_event(unauth_event)
     play_sound.assert_called_once_with(UNAUTH_SOUND)
-
 
 
 @patch('magicbandreader.handlers.authorization_sound.load_sound')
