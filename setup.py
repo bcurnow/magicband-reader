@@ -29,7 +29,8 @@ setup(
         'adafruit-circuitpython-neopixel',
         'rpi-ws281x',
         'pydub',
-        'simpleaudio'
+        'simpleaudio',
+        'pyyaml',
     ],
     entry_points={
         'console_scripts': [
