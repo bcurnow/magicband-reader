@@ -8,6 +8,7 @@ class AuthorizationHandler(AbstractHandler):
     def __init__(self, ctx, authorizer):
         super().__init__(priority=10)
         self.ctx = ctx
+        # Populate the context with the authorizer instance
         self.ctx.authorizer = authorizer
 
     def handle_event(self, event):
@@ -23,9 +24,4 @@ class AuthorizationHandler(AbstractHandler):
 
 
 def register(ctx):
-    return AuthorizationHandler(ctx,
-                                RfidSecuritySvcAuthorizer(
-                                    ctx.api_url,
-                                    ctx.api_key,
-                                    ctx.api_ssl_verify,
-                                ))
+    return AuthorizationHandler(ctx, RfdSecuritySvcAuthorizer(ctx))
