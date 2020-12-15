@@ -32,3 +32,17 @@ def context_with_authorizer(context):
         )
     context.authorizer = authorizer
     return context
+
+
+@pytest.fixture
+def context_with_led_controller(context):
+    led_controller = Mock()
+    context.led_controller = led_controller
+    return context
+
+
+@pytest.fixture
+def context_with_spin_thread(context_with_led_controller):
+    spin_thread = Mock()
+    context_with_led_controller.spin_thread = spin_thread
+    return context_with_led_controller
