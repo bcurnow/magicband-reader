@@ -38,18 +38,6 @@ def test_Handler_handle_unauthorized_event(load_sound, play_sound, context, unau
 def test_register(load_sound, context):
     load_sound.side_effect = [AUTH_SOUND, UNAUTH_SOUND]
     h = register(context)
-    assert h.priority == 40
-    assert h.authorized_sound == AUTH_SOUND
-    assert h.unauthorized_sound == UNAUTH_SOUND
-    assert load_sound.call_count == 2
-    load_sound.assert_has_calls([call(context, context.authorized_sound), call(context, context.unauthorized_sound)], any_order=False)
-    assert isinstance(h, Handler)
-
-
-@patch('magicbandreader.handlers.authorization_sound.load_sound')
-def test_register(load_sound, context):
-    load_sound.side_effect = [AUTH_SOUND, UNAUTH_SOUND]
-    h = register(context)
     assert isinstance(h, Handler)
 
 
