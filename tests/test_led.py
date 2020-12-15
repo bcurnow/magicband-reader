@@ -90,10 +90,10 @@ def test_fade_off(time, neopixel):
 @pytest.mark.parametrize(
     ('sleep_sec', 'reverse', 'effect_width'),
     [
-            (.01, False, 8),
-            (.01, False, 12),
-            (.01, True, 8),
-            (20, False, 8),
+        (.01, False, 8),
+        (.01, False, 12),
+        (.01, True, 8),
+        (20, False, 8),
     ]
     )
 def test_color_chase(time, neopixel, sleep_sec, reverse, effect_width):
