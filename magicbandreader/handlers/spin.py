@@ -16,7 +16,6 @@ class SpinHandler(AbstractHandler):
         self.ctx.spin_thread = t
         t.start()
 
-
     def _spin(self):
         self.ctx.led_controller.spin(LedColor.WHITE, reverse=True)
 
