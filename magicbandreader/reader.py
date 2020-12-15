@@ -115,8 +115,7 @@ def _validate_sound_file(ctx, param, sound_file):
               default='Open Door',
               help='The name of the permission to validate before authorizing.',
               show_envvar=True)
-@click.pass_context
-def main(click_ctx, **config):
+def main(**config):
     ctx = SimpleNamespace(**config)
     logging.basicConfig(level=getattr(logging, ctx.log_level.upper()),
                         format='%(asctime)s %(levelname)s %(pathname)s (line: %(lineno)d): %(message)s'
