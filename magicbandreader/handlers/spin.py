@@ -12,11 +12,13 @@ class SpinHandler(AbstractHandler):
 
     def handle_event(self, event):
         """ Override the handle_event method from the super class as we haven't authorized yet."""
-        t = threading.Thread(
-            target=lambda: self.ctx.led_controller.spin(LedColor.WHITE, reverse=True)
-        )
+        t = threading.Thread(target=self._spin)
         self.ctx.spin_thread = t
         t.start()
+
+
+    def _spin(self):
+        self.ctx.led_controller.spin(LedColor.WHITE, reverse=True)
 
 
 def register(ctx):
