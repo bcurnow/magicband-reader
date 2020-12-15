@@ -14,6 +14,8 @@ class WaitForSpinHandler(AbstractHandler):
         if hasattr(self.ctx, 'spin_thread'):
             # Wait until the spinning is completed
             self.ctx.spin_thread.join()
+            # Remove the spin_thread from the context since we're no longer spinning
+            del self.ctx.spin_thread
         else:
             logging.warning('Unable to find spin_thread in context.')
 
