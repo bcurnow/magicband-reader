@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch, Mock
 
 from magicbandreader.handlers.light_mickey import LightMickeyHandler as Handler, register
@@ -18,7 +17,6 @@ def test_Handler_handle_authorized_event(threading, context, auth_event):
     h.handle_authorized_event(auth_event)
     threading.Thread.assert_called_once_with(target=h._light_mickey, args=(LedColor.GREEN,))
     t.start.assert_called_once()
-
 
 
 @patch('magicbandreader.handlers.light_mickey.threading')
