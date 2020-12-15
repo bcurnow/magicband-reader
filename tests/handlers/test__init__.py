@@ -38,7 +38,6 @@ def test_AbstractHandler_handle_authorized_event():
     h = FakeHandler()
     e = Event(None, {}, type=EventType.AUTHORIZED)
     h.handle_event(e)
-    print(dir(h))
     assert h.handle_authorized_event_called == (e,)
 
 
