@@ -15,4 +15,4 @@ def unauth_event(context):
 
 @pytest.fixture
 def none_event(context):
-    return Event('test_id', context, EventType.NONE)
+    return Event(None, context, EventType.NONE)
