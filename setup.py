@@ -21,16 +21,16 @@ setup(
         'Natural Language :: English',
     ],
     python_requires='>=3.7',
+    dependency_links=['http://github.com/bcurnow/repo/tarball/master#egg=rfidreader[evdev, mfrc522]'],
     install_requires=[
         'Click',
         'click-config-file',
-        'rfidreader@https://github.com/bcurnow/rfid-reader/releases/download/v1.0.1/rfidreader-1.0.1-py3-none-any.whl',
-        'RPi.GPIO',
         'adafruit-circuitpython-neopixel',
         'rpi-ws281x',
         'pydub',
         'simpleaudio',
         'pyyaml',
+        'rfidreader >= 2.0.1',
     ],
     entry_points={
         'console_scripts': [
