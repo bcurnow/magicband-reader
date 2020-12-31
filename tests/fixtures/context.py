@@ -19,7 +19,7 @@ def config():
         'brightness_level': .5,
         'outer_pixel_count': 40,
         'inner_pixel_count': 15,
-        'device_name': '/dev/input/rfid'
+        'reader_type': 'evdev',
         }
 
 
