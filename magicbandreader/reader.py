@@ -34,23 +34,30 @@ def _validate_sound_file(ctx, param, sound_file):
     raise click.BadParameter(f'{full_path} does not exist')
 
 
-@click.command(context_settings=dict(max_content_width=500, show_default=True, auto_envvar_prefix='MR'))
+@click.command(context_settings=dict(
+    max_content_width=500,
+    show_default=True,
+    auto_envvar_prefix='MR',
+    ignore_unknown_options=True,
+    allow_extra_args=True))
+@click.option('-b',
+              '--brightness-level',
+              default=.5,
+              help='The brightness level of the LEDs. Range of 0.0 to 1.0 inclusive.',
+              callback=_validate_float_percentage_range,
+              show_envvar=True,
+              )
 @click_config_file.configuration_option('-c', '--config', implicit=False, help='Read configuration from YAML file.', provider=yaml_config)
-@click.option('-u',
-              '--api-url',
-              default='https://ubuntu-devpi.local:5000/api/v1.0/',
-              help='The rfid-security-svc base URL.',
+@click.option('-i',
+              '--inner-pixel-count',
+              default=15,
+              help='The number of pixels that make up the inner ring.',
               show_envvar=True,
               )
 @click.option('-k',
               '--api-key',
               required=True,
               help='The API key to authenticate to rfid-security-svc.',
-              show_envvar=True,
-              )
-@click.option('--api-ssl-verify',
-              default='CA.pem',
-              help='If True or a valid file reference, performs SSL validateion, if false, skips validation (this is insecure!).',
               show_envvar=True,
               )
 @click.option('-l',
@@ -60,10 +67,32 @@ def _validate_sound_file(ctx, param, sound_file):
               help='The logging level.',
               show_envvar=True,
               )
-@click.option('-d',
-              '--device-name',
-              default='/dev/input/rfid',
-              help='The name of the RFID device.',
+@click.option('-o',
+              '--outer-pixel-count',
+              default=40,
+              help='The number of pixels that make up the outer ring.',
+              show_envvar=True,
+              )
+@click.option('-p',
+              '--permission',
+              default='Open Door',
+              help='The name of the permission to validate before authorizing.',
+              show_envvar=True)
+@click.option('-s',
+              '--sound-dir',
+              default='/sounds',
+              help='The directory containing the sound files.',
+              show_envvar=True,
+              )
+@click.option('-t',
+              '--reader-type',
+              default='mfrc522',
+              help='The type of RFID reader implementation to use.',
+              show_envvar=True)
+@click.option('-u',
+              '--api-url',
+              default='https://ubuntu-devpi.local:5000/api/v1.0/',
+              help='The rfid-security-svc base URL.',
               show_envvar=True,
               )
 @click.option('-v',
@@ -73,10 +102,9 @@ def _validate_sound_file(ctx, param, sound_file):
               callback=_validate_float_percentage_range,
               show_envvar=True,
               )
-@click.option('-s',
-              '--sound-dir',
-              default='/sounds',
-              help='The directory containing the sound files.',
+@click.option('--api-ssl-verify',
+              default='CA.pem',
+              help='If True or a valid file reference, performs SSL validation, if false, skips validation (this is insecure!).',
               show_envvar=True,
               )
 @click.option('--authorized-sound',
@@ -91,30 +119,7 @@ def _validate_sound_file(ctx, param, sound_file):
               callback=_validate_sound_file,
               show_envvar=True,
               )
-@click.option('-b',
-              '--brightness-level',
-              default=.5,
-              help='The brightness level of the LEDs. Range of 0.0 to 1.0 inclusive.',
-              callback=_validate_float_percentage_range,
-              show_envvar=True,
-              )
-@click.option('-o',
-              '--outer-pixel-count',
-              default=40,
-              help='The number of pixels that make up the outer ring.',
-              show_envvar=True,
-              )
-@click.option('-i',
-              '--inner-pixel-count',
-              default=15,
-              help='The number of pixels that make up the inner ring.',
-              show_envvar=True,
-              )
-@click.option('-p',
-              '--permission',
-              default='Open Door',
-              help='The name of the permission to validate before authorizing.',
-              show_envvar=True)
+@click.argument('reader_args', nargs=-1, type=click.UNPROCESSED)
 def main(**config):
     ctx = SimpleNamespace(**config)
     logging.basicConfig(level=getattr(logging, ctx.log_level.upper()),
@@ -122,7 +127,7 @@ def main(**config):
                         )
     ctx.led_controller = LedController(brightness=ctx.brightness_level, outer_pixels=ctx.outer_pixel_count, inner_pixels=ctx.inner_pixel_count)
     handlers = register_handlers(ctx)
-    reader = rfidreader.RFIDReader(ctx.device_name)
+    reader = rfidreader.RFIDReader(ctx.reader_type, parse_reader_args(ctx.reader_type, config['reader_args']))
     logging.info('Waiting for MagicBand...')
     while True:
         rfid_id = reader.read()
@@ -130,3 +135,15 @@ def main(**config):
         event = Event(rfid_id, ctx)
         for handler in handlers:
             handler.handle_event(event)
+
+def parse_reader_args(reader_type, args):
+    prefix = f'{reader_type}-'
+    reader_args = {}
+    if not args:
+        return reader_args
+    if len(args) % 2:
+        raise ValueError('Reader arguments must be specified in pairs! Received an odd number of arguments.')
+    for i in range(0, len(args), 2):
+        if args[i].startswith(prefix):
+            reader_args[args[i].removeprefix(prefix)] = args[i + 1]
+    return reader_args

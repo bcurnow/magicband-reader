@@ -4,21 +4,21 @@ import pytest
 from unittest.mock import call, patch, Mock
 
 from magicbandreader.event import Event
-from magicbandreader.reader import _validate_float_percentage_range, _validate_sound_file, main
+import magicbandreader.reader
 
 
 def test__validate_float_percentage_range():
-    _validate_float_percentage_range(None, 'test', .5)
+    magicbandreader.reader._validate_float_percentage_range(None, 'test', .5)
 
 
 def test__validate_float_percentage_range_too_low():
     with pytest.raises(BadParameter):
-        _validate_float_percentage_range(None, 'test', -1)
+        magicbandreader.reader._validate_float_percentage_range(None, 'test', -1)
 
 
 def test__validate_float_percentage_range_too_high():
     with pytest.raises(BadParameter):
-        _validate_float_percentage_range(None, 'test', 2)
+        magicbandreader.reader._validate_float_percentage_range(None, 'test', 2)
 
 
 @pytest.mark.parametrize(
@@ -31,7 +31,7 @@ def test__validate_float_percentage_range_too_high():
 @patch('magicbandreader.reader.click')
 def test__validate_float_percentage_range_zero(click, param_name, message):
     p = Parameter(param_name)
-    _validate_float_percentage_range(None, p, 0)
+    magicbandreader.reader._validate_float_percentage_range(None, p, 0)
     click.secho.assert_called_once_with(message, fg='red')
 
 
@@ -49,9 +49,9 @@ def test__validate_sound_file(os, exists, exception_type):
     os.path.exists.return_value = exists
     if exception_type:
         with pytest.raises(exception_type, match='/test does not exist'):
-            _validate_sound_file(ctx, None, 'test')
+            magicbandreader.reader._validate_sound_file(ctx, None, 'test')
     else:
-        _validate_sound_file(ctx, None, 'test')
+        magicbandreader.reader._validate_sound_file(ctx, None, 'test')
     os.path.join.assert_called_once_with('/test', 'test')
     os.path.exists.assert_called_once_with('/test')
 
@@ -63,13 +63,39 @@ def test__validate_sound_file(os, exists, exception_type):
 @patch('magicbandreader.reader.SimpleNamespace')
 def test_main(SimpleNamespace, logging, LedController, rfidreader, register_handlers, context):
     led_controller, mock_handler, reader = mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_handlers, context)
-    result = CliRunner().invoke(main, ['-k', 'testing'])
+    result = CliRunner().invoke(magicbandreader.reader.main, ['-k', 'testing', '--reader-type', 'evdev', 'evdev-device_name', '/dev/input/rfid'])
     assert_result(result)
     assert_logging(logging)
     assert_led(LedController, context, led_controller)
     register_handlers.assert_called_once_with(context)
-    rfidreader.RFIDReader.assert_called_once_with('/dev/input/rfid')
+    rfidreader.RFIDReader.assert_called_once_with('evdev', {'device_name': '/dev/input/rfid'})
     assert_loop(reader, mock_handler, context)
+
+
+@pytest.mark.parametrize(
+    ('reader_type', 'args', 'expected'),
+    [
+        ('evdev', None, {}),
+        ('evdev', [], {}),
+        ('evdev', ['missing partner'], ValueError),
+        ('evdev', ['not-for_you', 'bogus'], {}),
+        ('evdev', ['evdev-test_one', 1, 'evdev-test_two', 2], {'test_one': 1, 'test_two': 2}),
+    ],
+    ids=[
+        'No device config',
+        'Empty device config',
+        'Odd number of options',
+        'No device config for type',
+        'Some args',
+        ]
+    )
+def test_parse_reader_args(reader_type, args, expected):
+    if expected == ValueError:
+        with pytest.raises(expected):
+            magicbandreader.reader.parse_reader_args(reader_type, args)
+    else:
+        actual = magicbandreader.reader.parse_reader_args(reader_type, args)
+        assert actual == expected
 
 
 def mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_handlers, context):
