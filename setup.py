@@ -29,7 +29,7 @@ setup(
         'pydub',
         'simpleaudio',
         'pyyaml',
-        'rfid-reader[evdev,mfrc522]@git+https://github.com/bcurnow/rfid-reader.git#egg=rfid-reader',
+        'rfid-reader[evdev,mfrc522]@git+https://github.com/bcurnow/rfid-reader.git#egg=rfidreader',
     ],
     entry_points={
         'console_scripts': [
