@@ -21,7 +21,6 @@ setup(
         'Natural Language :: English',
     ],
     python_requires='>=3.7',
-    dependency_links=['http://github.com/bcurnow/repo/tarball/master#egg=rfidreader[evdev, mfrc522]'],
     install_requires=[
         'Click',
         'click-config-file',
@@ -30,7 +29,7 @@ setup(
         'pydub',
         'simpleaudio',
         'pyyaml',
-        'rfidreader >= 2.0.1',
+        'rfid-reader[evdev,mfrc522]@git+https://github.com/bcurnow/rfid-reader.git#egg=rfid-reader',
     ],
     entry_points={
         'console_scripts': [
