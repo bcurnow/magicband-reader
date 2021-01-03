@@ -7,7 +7,7 @@ from magicbandreader.led import LedColor
 class SpinHandler(AbstractHandler):
     """ Spins the lights around the main ring."""
     def __init__(self, ctx):
-        super().__init__(priority=0)
+        super().__init__(priority=1)
         self.ctx = ctx
 
     def handle_event(self, event):

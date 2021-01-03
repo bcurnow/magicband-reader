@@ -6,7 +6,7 @@ from magicbandreader.led import LedColor
 
 def test_Handler___init__(context_with_led_controller):
     h = Handler(context_with_led_controller)
-    assert h.priority == 0
+    assert h.priority == 1
     assert h.ctx == context_with_led_controller
 
 

@@ -64,6 +64,7 @@ def test__validate_sound_file(os, exists, exception_type):
 def test_main(SimpleNamespace, logging, LedController, rfidreader, register_handlers, context):
     led_controller, mock_handler, reader = mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_handlers, context)
     result = CliRunner().invoke(magicbandreader.reader.main, ['-k', 'testing', '--reader-type', 'evdev', 'evdev-device_name', '/dev/input/rfid'])
+    print(result.output)
     assert_result(result)
     assert_logging(logging)
     assert_led(LedController, context, led_controller)
@@ -111,7 +112,7 @@ def mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_h
 
 
 def assert_result(result):
-    # Since we threw and IOError, the command should exit with error code 1
+    # Since we threw an IOError, the command should exit with error code 1
     assert result.exit_code == 1
     # The IOError should be wrapped in an OSError
     assert type(result.exception) == BreakTheLoop

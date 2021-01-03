@@ -108,14 +108,20 @@ def _validate_sound_file(ctx, param, sound_file):
               show_envvar=True,
               )
 @click.option('--authorized-sound',
-              default='be-our-guest-be-our-guest-put-our-service-to-the-test.wav',
-              help='The name of the sound file when a band is authorized.',
+              default='authorized.wav',
+              help='The name of the sound file played when a band is authorized.',
+              callback=_validate_sound_file,
+              show_envvar=True,
+              )
+@click.option('--read-sound',
+              default='read.wav',
+              help='The name of the sound file played when a band is read.',
               callback=_validate_sound_file,
               show_envvar=True,
               )
 @click.option('--unauthorized-sound',
-              default='is-my-hair-out.wav',
-              help='The name of the sound file when a band is unauthorized.',
+              default='unauthorized.wav',
+              help='The name of the sound file played when a band is unauthorized.',
               callback=_validate_sound_file,
               show_envvar=True,
               )
