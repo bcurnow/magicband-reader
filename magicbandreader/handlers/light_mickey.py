@@ -20,7 +20,7 @@ class LightMickeyHandler(AbstractHandler):
     def handle_unauthorized_event(self, event):
         threading.Thread(
             target=self._light_mickey,
-            args=(LedColor.STEEL_BLUE,)
+            args=(LedColor.BLUE,)
         ).start()
 
     def _light_mickey(self, color):
