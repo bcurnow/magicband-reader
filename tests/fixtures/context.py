@@ -20,6 +20,7 @@ def config():
         'outer_pixel_count': 40,
         'inner_pixel_count': 15,
         'reader_type': 'evdev',
+        'read_sound': '/test/read'
         }
 
 
