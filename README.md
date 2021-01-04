@@ -1,5 +1,5 @@
 # magicband-reader
-Reads Disney MagicBands via the rfid-reader library and integrates with rfid-security-svc for implementing authorizations.
+Reads Disney MagicBands via the rfid-reader library and integrates with rfid-security-svc for implementing authorizations. This is inspired by the [MagicBand reader from Foolish Mortal Builders](https://www.youtube.com/watch?v=HJ8CTLgmcSk&t=503s).
 
 # Running
 This package installs a entry point named `magicband-reader`
@@ -19,17 +19,17 @@ The `magicband-reader` entry point accepts the following command line arguments:
 * `-u`|`--api-url` - The rfid-security-svc base URL. Default: `https://ubuntu-devpi.local:5000/api/v1.0/`
 * `-v`|`--volume-level` - The volume sounds should be played at. Range of 0.0 to 1.0 inclusive. Default: `.1`
 * `--api-ssl-verify` - If True or a valid file reference, performs SSL validation, if false, skips validation (this is insecure!). Default: `CA.pem`
-* `--authorized-sound` - The name of the sound file when a band is authorized. Default: `be-our-guest-be-our-guest-put-our-service-to-the-test.wav`
-* `--unauthorized-sound` - The name of the sound file when a band is authorized. Default: `is-my-hair-out.wav`
+* `--authorized-sound` - The name of the sound file played when a band is authorized. Default: `authorized.wav`
+* `--read-sound` - The name of the sound file played when a band is read. Default: `read.wav`
+* `--unauthorized-sound` - The name of the sound file played when a band is authorized. Default: `unauthorized.wav`
 
 In addition to arguments for the MagicBand Reader itself, you can also pass arguments to the RFID Reader implementation. This is done by adding additional arguments in the format `<reader type>-<option name>`. For example, to pass the parameter `device_name` to the `evdev` implementation, simply add `evdev-device_name <device_name>` to the end of the command line.
-
 
 ## Environment Variables
 All configuration options, with the exception of the RFID Reader implementation options, can be specified as environment variables. The variables names are prefixed with `MR_`. The remaining name is the same as the long argument name in uppercase with all dashes replaced with underscore. For example, to specify `--volume-level` as an environment variable, you'd set `MR_VOLUME_LEVEL`.
 
 ## Configuration File
-One of the command line options is a configuration file. This allows all configuration options, with the exception of the RFID Reader implementation otpions, to be specified in a YAML configuration file. For example:
+One of the command line options is a configuration file. This allows all configuration options, with the exception of the RFID Reader implementation options, to be specified in a YAML configuration file. For example:
 
 ```
 api_url: https://ubuntu-devpi.local:5000/api/v1.0/
