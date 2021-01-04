@@ -24,7 +24,7 @@ def test_Handler_handle_unauthorized_event(threading, context, unauth_event):
     h = Handler(context)
     t = threading.Thread.return_value
     h.handle_unauthorized_event(unauth_event)
-    threading.Thread.assert_called_once_with(target=h._light_mickey, args=(LedColor.STEEL_BLUE,))
+    threading.Thread.assert_called_once_with(target=h._light_mickey, args=(LedColor.BLUE,))
     t.start.assert_called_once()
 
 
