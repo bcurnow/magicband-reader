@@ -142,6 +142,7 @@ def main(**config):
         for handler in handlers:
             handler.handle_event(event)
 
+
 def parse_reader_args(reader_type, args):
     prefix = f'{reader_type}-'
     reader_args = {}
