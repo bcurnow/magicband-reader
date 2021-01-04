@@ -2,3 +2,6 @@
 branch = True
 source =
   magicbandreader
+
+[report]
+  show_missing = True
