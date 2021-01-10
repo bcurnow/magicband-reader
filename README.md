@@ -18,8 +18,9 @@ The `magicband-reader` entry point accepts the following command line arguments:
 * `-t`|`--reader-type` - The type of RFID reader implementation to use. Default: `mfrc522`
 * `-u`|`--api-url` - The rfid-security-svc base URL. Default: `https://ubuntu-devpi.local:5000/api/v1.0/`
 * `-v`|`--volume-level` - The volume sounds should be played at. Range of 0.0 to 1.0 inclusive. Default: `.1`
-* `--api-ssl-verify` - If True or a valid file reference, performs SSL validation, if false, skips validation (this is insecure!). Default: `CA.pem`
+* `--api-ssl-verify` - If True or a valid file reference, performs SSL validation, if false, skips validation (this is insecure!). Default: `ca.pem`
 * `--authorized-sound` - The name of the sound file played when a band is authorized. Default: `authorized.wav`
+* `--port-number` - The port number to listen for uid requests on. Default: `8080`
 * `--read-sound` - The name of the sound file played when a band is read. Default: `read.wav`
 * `--unauthorized-sound` - The name of the sound file played when a band is authorized. Default: `unauthorized.wav`
 
