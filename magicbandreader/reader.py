@@ -10,6 +10,7 @@ from magicbandreader.config import yaml_config
 from magicbandreader.event import Event
 from magicbandreader.handlers import register_handlers
 from magicbandreader.led import LedController
+from magicbandreader.router import Router
 
 
 def _validate_float_percentage_range(ctx, param, value):
@@ -44,6 +45,7 @@ def _validate_sound_file(ctx, param, sound_file):
               '--brightness-level',
               default=.5,
               help='The brightness level of the LEDs. Range of 0.0 to 1.0 inclusive.',
+              type=float,
               callback=_validate_float_percentage_range,
               show_envvar=True,
               )
@@ -52,6 +54,7 @@ def _validate_sound_file(ctx, param, sound_file):
               '--inner-pixel-count',
               default=15,
               help='The number of pixels that make up the inner ring.',
+              type=int,
               show_envvar=True,
               )
 @click.option('-k',
@@ -71,6 +74,7 @@ def _validate_sound_file(ctx, param, sound_file):
               '--outer-pixel-count',
               default=40,
               help='The number of pixels that make up the outer ring.',
+              type=int,
               show_envvar=True,
               )
 @click.option('-p',
@@ -99,11 +103,12 @@ def _validate_sound_file(ctx, param, sound_file):
               '--volume-level',
               default=.1,
               help='The volume sounds should be played at. Range of 0.0 to 1.0 inclusive.',
+              type=float,
               callback=_validate_float_percentage_range,
               show_envvar=True,
               )
 @click.option('--api-ssl-verify',
-              default='CA.pem',
+              default='ca.pem',
               help='If True or a valid file reference, performs SSL validation, if false, skips validation (this is insecure!).',
               show_envvar=True,
               )
@@ -111,6 +116,12 @@ def _validate_sound_file(ctx, param, sound_file):
               default='authorized.wav',
               help='The name of the sound file played when a band is authorized.',
               callback=_validate_sound_file,
+              show_envvar=True,
+              )
+@click.option('--port-number',
+              default=8080,
+              help='The port number to listen for request for uid (e.g. from rfid-security-svc).',
+              type=click.IntRange(1, 65535),
               show_envvar=True,
               )
 @click.option('--read-sound',
@@ -132,15 +143,15 @@ def main(**config):
                         format='%(asctime)s %(levelname)s %(pathname)s (line: %(lineno)d): %(message)s'
                         )
     ctx.led_controller = LedController(brightness=ctx.brightness_level, outer_pixels=ctx.outer_pixel_count, inner_pixels=ctx.inner_pixel_count)
-    handlers = register_handlers(ctx)
+    ctx.handlers = register_handlers(ctx)
     reader = rfidreader.RFIDReader(ctx.reader_type, parse_reader_args(ctx.reader_type, config['reader_args']))
+    router = Router(ctx)
     logging.info('Waiting for MagicBand...')
     while True:
         rfid_id = reader.read()
         # Need to create the event once, handlers may update attributes
         event = Event(rfid_id, ctx)
-        for handler in handlers:
-            handler.handle_event(event)
+        router.route(event)
 
 
 def parse_reader_args(reader_type, args):
