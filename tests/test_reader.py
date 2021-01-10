@@ -1,38 +1,46 @@
 from click import BadParameter
 from click.testing import CliRunner
 import pytest
-from unittest.mock import call, patch, Mock
+import re
+from unittest.mock import call, patch
 
 from magicbandreader.event import Event
 import magicbandreader.reader
 
 
-def test__validate_float_percentage_range():
-    magicbandreader.reader._validate_float_percentage_range(None, 'test', .5)
-
-
-def test__validate_float_percentage_range_too_low():
-    with pytest.raises(BadParameter):
-        magicbandreader.reader._validate_float_percentage_range(None, 'test', -1)
-
-
-def test__validate_float_percentage_range_too_high():
-    with pytest.raises(BadParameter):
-        magicbandreader.reader._validate_float_percentage_range(None, 'test', 2)
+class Parameter:
+    """ A testing class that simulates a click Parameter. """
+    def __init__(self, name):
+        self.name = name
 
 
 @pytest.mark.parametrize(
-    ('param_name', 'message'),
+    ('param_name', 'value', 'expected', 'message'),
     [
-        ('brightness_level', 'Brightness set to zero (0), no lights will be shown.'),
-        ('volume_level', 'Volume set to zero (0), sound will not be audible.'),
+        (Parameter('test'), .5, .5, None),
+        (Parameter('test'), -1, BadParameter, re.escape('must be in the range 0.0 - 1.0 (inclusive)')),
+        (Parameter('test'), 2, BadParameter, re.escape('must be in the range 0.0 - 1.0 (inclusive)')),
+        (Parameter('brightness_level'), 0, 0, 'Brightness set to zero (0), no lights will be shown.'),
+        (Parameter('volume_level'), 0, 0, 'Volume set to zero (0), sound will not be audible.'),
+    ],
+    ids=[
+        'success',
+        'too low',
+        'too high',
+        'brightness zero',
+        'volume zero'
     ]
     )
-@patch('magicbandreader.reader.click')
-def test__validate_float_percentage_range_zero(click, param_name, message):
-    p = Parameter(param_name)
-    magicbandreader.reader._validate_float_percentage_range(None, p, 0)
-    click.secho.assert_called_once_with(message, fg='red')
+def test__validate_float_percentage_range(param_name, value, expected, message):
+    if expected is not BadParameter:
+        with patch('magicbandreader.reader.click') as click:
+            actual = magicbandreader.reader._validate_float_percentage_range(None, param_name, value)
+            assert actual == expected
+            if message:
+                click.secho.assert_called_once_with(message, fg='red')
+    else:
+        with pytest.raises(BadParameter, match=message):
+            magicbandreader.reader._validate_float_percentage_range(None, param_name, value)
 
 
 @pytest.mark.parametrize(
@@ -56,21 +64,21 @@ def test__validate_sound_file(os, exists, exception_type):
     os.path.exists.assert_called_once_with('/test')
 
 
+@patch('magicbandreader.reader.Router')
 @patch('magicbandreader.reader.register_handlers')
 @patch('magicbandreader.reader.rfidreader')
 @patch('magicbandreader.reader.LedController')
 @patch('magicbandreader.reader.logging')
 @patch('magicbandreader.reader.SimpleNamespace')
-def test_main(SimpleNamespace, logging, LedController, rfidreader, register_handlers, context):
-    led_controller, mock_handler, reader = mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_handlers, context)
+def test_main(SimpleNamespace, logging, LedController, rfidreader, register_handlers, Router, context):
+    led_controller, reader, router = mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_handlers, context, Router)
     result = CliRunner().invoke(magicbandreader.reader.main, ['-k', 'testing', '--reader-type', 'evdev', 'evdev-device_name', '/dev/input/rfid'])
-    print(result.output)
     assert_result(result)
     assert_logging(logging)
     assert_led(LedController, context, led_controller)
     register_handlers.assert_called_once_with(context)
     rfidreader.RFIDReader.assert_called_once_with('evdev', {'device_name': '/dev/input/rfid'})
-    assert_loop(reader, mock_handler, context)
+    assert_loop(reader, router, context)
 
 
 @pytest.mark.parametrize(
@@ -99,16 +107,17 @@ def test_parse_reader_args(reader_type, args, expected):
         assert actual == expected
 
 
-def mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_handlers, context):
+def mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_handlers, context, Router):
     """ This method takes care of setting up all the mock objects for main and returns the needed ones."""
     SimpleNamespace.return_value = context
     assert not hasattr(context, 'led_controller')
+    assert not hasattr(context, 'handlers')
     led_controller = LedController.return_value
-    mock_handler = Mock()
-    register_handlers.return_value = [mock_handler]
+    register_handlers.return_value = []
     reader = rfidreader.RFIDReader.return_value
     reader.read.side_effect = ['test_id', BreakTheLoop('This will cause the loop to end.')]
-    return (led_controller, mock_handler, reader)
+    router = Router.return_value
+    return (led_controller, reader, router)
 
 
 def assert_result(result):
@@ -136,22 +145,18 @@ def assert_logging(logging):
     logging.info.assert_called_once_with('Waiting for MagicBand...')
 
 
-def assert_loop(reader, mock_handler, context):
+def assert_loop(reader, router, context):
+    assert hasattr(context, 'handlers')
+    assert context.handlers == []
     assert reader.read.call_count == 2
     reader.read.assert_has_calls([call(), call()], any_order=False)
-    mock_handler.handle_event.assert_called_once_with(EqualEvent('test_id', context))
+    router.route.assert_called_once_with(EqualEvent('test_id', context))
 
 
 class EqualEvent(Event):
     """ Adds an __eq__ implementation to allow us to assert the call to handle_event."""
     def __eq__(self, other):
         return self.id == other.id and self.ctx == other.ctx
-
-
-class Parameter:
-    """ A testing class that simulates a click Parameter. """
-    def __init__(self, name):
-        self.name = name
 
 
 class MockContext:
