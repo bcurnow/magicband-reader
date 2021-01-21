@@ -1,5 +1,4 @@
 import threading
-import time
 
 from magicbandreader.handlers import AbstractHandler
 from magicbandreader.led import LedColor
@@ -13,20 +12,15 @@ class LightMickeyHandler(AbstractHandler):
 
     def handle_authorized_event(self, event):
         threading.Thread(
-            target=self._light_mickey,
+            target=self.ctx.led_controller.fade_on,
             args=(LedColor.GREEN,)
         ).start()
 
     def handle_unauthorized_event(self, event):
         threading.Thread(
-            target=self._light_mickey,
+            target=self.ctx.led_controller.fade_on,
             args=(LedColor.BLUE,)
         ).start()
-
-    def _light_mickey(self, color):
-        self.ctx.led_controller.fade_on(color)
-        time.sleep(1)
-        self.ctx.led_controller.fade_off()
 
 
 def register(ctx):
