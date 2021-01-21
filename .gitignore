@@ -130,3 +130,4 @@ dmypy.json
 
 # Application specific
 ca.pem
+sounds/
