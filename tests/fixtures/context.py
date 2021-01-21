@@ -50,6 +50,13 @@ def context_with_led_controller(context):
 
 @pytest.fixture
 def context_with_spin_thread(context_with_led_controller):
-    spin_thread = Mock()
+    spin_thread = Mock(name='spin_thread')
     context_with_led_controller.spin_thread = spin_thread
+    return context_with_led_controller
+
+
+@pytest.fixture
+def context_with_authorization_sound_thread(context_with_led_controller):
+    thread = Mock(name='authorization_sound_thread')
+    context_with_led_controller.authorization_sound_thread = thread
     return context_with_led_controller
