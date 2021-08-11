@@ -142,16 +142,21 @@ def main(**config):
     logging.basicConfig(level=getattr(logging, ctx.log_level.upper()),
                         format='%(asctime)s %(levelname)s %(pathname)s (line: %(lineno)d): %(message)s'
                         )
-    ctx.led_controller = LedController(brightness=ctx.brightness_level, outer_pixels=ctx.outer_pixel_count, inner_pixels=ctx.inner_pixel_count)
     ctx.handlers = register_handlers(ctx)
+    logging.debug(f'Handlers: {ctx.handlers}')
     reader = rfidreader.RFIDReader(ctx.reader_type, parse_reader_args(ctx.reader_type, config['reader_args']))
     router = Router(ctx)
     logging.info('Waiting for MagicBand...')
+    ctx.led_controller = LedController(brightness=ctx.brightness_level, outer_pixels=ctx.outer_pixel_count, inner_pixels=ctx.inner_pixel_count)
     while True:
         rfid_id = reader.read()
-        # Need to create the event once, handlers may update attributes
-        event = Event(rfid_id, ctx)
-        router.route(event)
+        # There are times when the reader does not return a value. I believe this has to do with not being able to fully
+        # power up the tag, probably due to an older tag, make sure we don't attempt to handle this event
+        if rfid_id:
+            logging.debug(f'Read "{rfid_id}" from the reader')
+            # Need to create the event once, handlers may update attributes
+            event = Event(rfid_id, ctx)
+            router.route(event)
 
 
 def parse_reader_args(reader_type, args):
