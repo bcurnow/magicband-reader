@@ -16,6 +16,7 @@ class AbstractHandler():
 
     def handle_event(self, event):
         """ Method called to handle an event, this method delegates to the handle_*_event methods as appropriate."""
+        logging.debug(f'Received an event of type {event.type}')
         if event.type:
             self._method_map[event.type](event)
         else:
@@ -26,15 +27,15 @@ class AbstractHandler():
 
     def handle_authorized_event(self, event):
         """ Called when authorization for an event has succeeded."""
-        pass
+        logging.debug(f'Processing an authorized event within the AbstractHandler')
 
     def handle_unauthorized_event(self, event):
         """ Called when authorization for an event has failed."""
-        pass
+        logging.debug(f'Processing an unauthorized event within the AbstractHandler')
 
     def handle_none_event(self, event):
         """ Called when reading an event returns None. This isn't supposed to happen and should be considered exceptional."""
-        pass
+        logging.debug(f'Processing a none event within the AbstractHandler (this should not be possible!)')
 
 
 def register_handlers(ctx):
@@ -44,8 +45,10 @@ def register_handlers(ctx):
 
     for module_info in iter_modules(path=pkg.__path__):
         module = import_module(f'{pkg.__name__}.{module_info.name}')
+        logging.debug(f'Found handler {module_info.name} in package {pkg.__name__}')
         register_method = getattr(module, 'register', None)
         if register_method:
+            logging.debug(f'Found register method for handler {module_info.name} in package {pkg.__name__}')
             rv.append(register_method(ctx))
 
     return sorted(rv, key=lambda h: h.priority)
