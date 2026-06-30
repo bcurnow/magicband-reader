@@ -17,6 +17,7 @@ def test_Handler_handle_authorized_event(threading, context_with_led_controller,
     h.handle_authorized_event(auth_event)
     threading.Thread.assert_called_once_with(target=context_with_led_controller.led_controller.fade_on, args=(LedColor.GREEN,))
     t.start.assert_called_once()
+    assert context_with_led_controller.light_thread == t
 
 
 @patch("magicbandreader.handlers.light_mickey.threading")
@@ -26,6 +27,7 @@ def test_Handler_handle_unauthorized_event(threading, context_with_led_controlle
     h.handle_unauthorized_event(unauth_event)
     threading.Thread.assert_called_once_with(target=context_with_led_controller.led_controller.fade_on, args=(LedColor.BLUE,))
     t.start.assert_called_once()
+    assert context_with_led_controller.light_thread == t
 
 
 def test_register(context):

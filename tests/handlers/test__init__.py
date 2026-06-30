@@ -65,8 +65,8 @@ def test_AbstractHandler_handle_event_notype(logging):
     h = FakeHandler(priority=1)
     e = Event(None, {}, type=None)
     h.handle_event(e)
-    logging.warn.assert_called_once_with(
-        ("handle_event called on FakeHandler (priority: 1) but the event has no type. ", "Please check the priority order of the handlers.")
+    logging.warning.assert_called_once_with(
+        "handle_event called on FakeHandler (priority: 1) but the event has no type. Please check the priority order of the handlers."
     )
 
 

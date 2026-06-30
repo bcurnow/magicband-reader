@@ -20,6 +20,13 @@ class TurnOffMickeyHandler(AbstractHandler):
         else:
             logging.warning("Unable to find authorization_sound_thread in context.")
 
+        if hasattr(self.ctx, "light_thread"):
+            # Wait until the LED fade-on is done before fading off
+            self.ctx.light_thread.join()
+            del self.ctx.light_thread
+        else:
+            logging.warning("Unable to find light_thread in context.")
+
         self.ctx.led_controller.fade_off()
 
 

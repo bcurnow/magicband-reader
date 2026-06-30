@@ -57,3 +57,17 @@ def context_with_authorization_sound_thread(context_with_led_controller):
     thread = Mock(name="authorization_sound_thread")
     context_with_led_controller.authorization_sound_thread = thread
     return context_with_led_controller
+
+
+@pytest.fixture
+def context_with_light_thread(context_with_led_controller):
+    thread = Mock(name="light_thread")
+    context_with_led_controller.light_thread = thread
+    return context_with_led_controller
+
+
+@pytest.fixture
+def context_with_all_threads(context_with_led_controller):
+    context_with_led_controller.authorization_sound_thread = Mock(name="authorization_sound_thread")
+    context_with_led_controller.light_thread = Mock(name="light_thread")
+    return context_with_led_controller

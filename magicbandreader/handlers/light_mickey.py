@@ -12,10 +12,12 @@ class LightMickeyHandler(AbstractHandler):
         self.ctx = ctx
 
     def handle_authorized_event(self, event):
-        threading.Thread(target=self.ctx.led_controller.fade_on, args=(LedColor.GREEN,)).start()
+        self.ctx.light_thread = threading.Thread(target=self.ctx.led_controller.fade_on, args=(LedColor.GREEN,))
+        self.ctx.light_thread.start()
 
     def handle_unauthorized_event(self, event):
-        threading.Thread(target=self.ctx.led_controller.fade_on, args=(LedColor.BLUE,)).start()
+        self.ctx.light_thread = threading.Thread(target=self.ctx.led_controller.fade_on, args=(LedColor.BLUE,))
+        self.ctx.light_thread.start()
 
 
 def register(ctx):

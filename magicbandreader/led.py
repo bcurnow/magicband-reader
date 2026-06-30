@@ -233,6 +233,6 @@ class LedController:
         self.color_chase(color, self._brightness(brightness), 0.0001, reverse, effect_width)
 
     def _brightness(self, brightness):
-        if brightness:
+        if brightness is not None:
             return brightness
         return self.brightness

@@ -125,6 +125,27 @@ def test_spin(time, neopixel, reverse, effect_width):
     assert_has_call_count(time.sleep, sleep_calls)
 
 
+@patch("magicbandreader.led.neopixel")
+@patch("magicbandreader.led.time")
+def test__brightness_none_falls_back_to_instance_default(time, neopixel):
+    led, _ = led_controller(time, neopixel)
+    assert led._brightness(None) == DEFAULT_BRIGHTNESS
+
+
+@patch("magicbandreader.led.neopixel")
+@patch("magicbandreader.led.time")
+def test__brightness_explicit_value_overrides_default(time, neopixel):
+    led, _ = led_controller(time, neopixel)
+    assert led._brightness(0.8) == 0.8
+
+
+@patch("magicbandreader.led.neopixel")
+@patch("magicbandreader.led.time")
+def test__brightness_zero_honored(time, neopixel):
+    led, _ = led_controller(time, neopixel)
+    assert led._brightness(0.0) == 0.0
+
+
 def led_controller(time, neopixel, outer_pixels=1, inner_pixels=1):
     led = LedController(DEFAULT_BRIGHTNESS, outer_pixels, inner_pixels)
     # We don't want to keep any of the calls from the constructor

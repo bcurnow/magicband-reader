@@ -154,7 +154,7 @@ def main(**config):
         rfid_id = reader.read()
         # There are times when the reader does not return a value. I believe this has to do with not being able to fully
         # power up the tag, probably due to an older tag, make sure we don't attempt to handle this event
-        if rfid_id:
+        if rfid_id is not None:
             logging.debug(f'Read "{rfid_id}" from the reader')
             # Need to create the event once, handlers may update attributes
             event = Event(rfid_id, ctx)

@@ -20,7 +20,7 @@ def test_Handler_handle_authorized_event(logging, context_with_authorizer, auth_
 def test_Handler_handle_unauthorized_event(logging, context_with_authorizer, unauth_event):
     h = Handler(context_with_authorizer)
     h.handle_unauthorized_event(unauth_event)
-    logging.warn.assert_called_once_with(f"{unauth_event.id} was NOT authorized for {context_with_authorizer.authorizer.permission}")
+    logging.warning.assert_called_once_with(f"{unauth_event.id} was NOT authorized for {context_with_authorizer.authorizer.permission}")
 
 
 @patch("magicbandreader.handlers.logger.logging")

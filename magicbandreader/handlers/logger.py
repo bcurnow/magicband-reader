@@ -12,7 +12,7 @@ class LoggingHandler(AbstractHandler):
         logging.info(f"{event.id} was authorized for {self.ctx.authorizer.permission}")
 
     def handle_unauthorized_event(self, event):
-        logging.warn(f"{event.id} was NOT authorized for {self.ctx.authorizer.permission}")
+        logging.warning(f"{event.id} was NOT authorized for {self.ctx.authorizer.permission}")
 
     def handle_none_event(self, event):
         logging.error("Received an event of None, this should not be possible.")
