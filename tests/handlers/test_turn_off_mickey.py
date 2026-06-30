@@ -14,15 +14,15 @@ def test_handle_event(context_with_authorization_sound_thread, auth_event):
     t = context_with_authorization_sound_thread.authorization_sound_thread
     h.handle_event(auth_event)
     t.join.assert_called_once()
-    assert not hasattr(context_with_authorization_sound_thread, 'authorization_sound_thread')
+    assert not hasattr(context_with_authorization_sound_thread, "authorization_sound_thread")
     context_with_authorization_sound_thread.led_controller.fade_off.assert_called_once()
 
 
-@patch('magicbandreader.handlers.turn_off_mickey.logging')
+@patch("magicbandreader.handlers.turn_off_mickey.logging")
 def test_handle_event_no_spin_thread(logging, context_with_led_controller, auth_event):
     h = Handler(context_with_led_controller)
     h.handle_event(auth_event)
-    logging.warning.assert_called_once_with('Unable to find authorization_sound_thread in context.')
+    logging.warning.assert_called_once_with("Unable to find authorization_sound_thread in context.")
     context_with_led_controller.led_controller.fade_off.assert_called_once()
 
 

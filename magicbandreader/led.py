@@ -147,29 +147,24 @@ class LedColor(Enum):
 
 
 class LedController:
-    def __init__(self,
-                 brightness=.5,
-                 outer_pixels=40,
-                 inner_pixels=15,
-                 ):
+    def __init__(
+        self,
+        brightness=0.5,
+        outer_pixels=40,
+        inner_pixels=15,
+    ):
         self.brightness = brightness
         self.outer_pixels = outer_pixels
         self.inner_pixels = inner_pixels
-        self.pixels = neopixel.NeoPixel(
-            board.D18,
-            outer_pixels + inner_pixels,
-            brightness=brightness,
-            auto_write=False,
-            pixel_order=neopixel.GRB
-            )
+        self.pixels = neopixel.NeoPixel(board.D18, outer_pixels + inner_pixels, brightness=brightness, auto_write=False, pixel_order=neopixel.GRB)
         self.startup_sequence()
 
     def startup_sequence(self):
-        """ Executes a specific pattern to provide a visual indicators that the controller is started."""
-        self.blink(LedColor.WHITE, iterations=2, sleep_sec=.50)
+        """Executes a specific pattern to provide a visual indicators that the controller is started."""
+        self.blink(LedColor.WHITE, iterations=2, sleep_sec=0.50)
 
-    def blink(self, led_color, brightness=None, iterations=3, sleep_sec=.25):
-        """ Implements a "blink" effect by turning on and off the lights."""
+    def blink(self, led_color, brightness=None, iterations=3, sleep_sec=0.25):
+        """Implements a "blink" effect by turning on and off the lights."""
         self.pixels.brightness = self._brightness(brightness)
         for i in range(iterations):
             self.lights_on(led_color, brightness=self._brightness(brightness))
@@ -180,13 +175,13 @@ class LedController:
                 time.sleep(sleep_sec)
 
     def lights_on(self, led_color, brightness=None):
-        """ Turns all the leds on to a specific color."""
+        """Turns all the leds on to a specific color."""
         self.pixels.brightness = self._brightness(brightness)
         self.pixels.fill(led_color.value)
         self.pixels.show()
 
-    def fade_on(self, color, brightness=None, sleep_sec=.01):
-        """ Turns all the leds on to a specific color but raises the brightness gradually."""
+    def fade_on(self, color, brightness=None, sleep_sec=0.01):
+        """Turns all the leds on to a specific color but raises the brightness gradually."""
         target_brightness = self._brightness(brightness)
         self.pixels.fill(color.value)
 
@@ -196,12 +191,12 @@ class LedController:
             time.sleep(sleep_sec)
 
     def lights_off(self):
-        """ Turns all the leds off."""
+        """Turns all the leds off."""
         self.pixels.fill(0)
         self.pixels.show()
 
-    def fade_off(self, brightness=None, sleep_sec=.01):
-        """ Turns all the leds off but lowers the brightness grandually."""
+    def fade_off(self, brightness=None, sleep_sec=0.01):
+        """Turns all the leds off but lowers the brightness grandually."""
         max_brightness = self._brightness(brightness)
         for current_brightness in reversed(range((int(max_brightness * 100)) + 1)):
             self.pixels.brightness = current_brightness / 100
@@ -211,7 +206,7 @@ class LedController:
         # they were and come back on with the next call to show()
         self.pixels.fill(0)
 
-    def color_chase(self, color, brightness=None, sleep_sec=.1, reverse=False, effect_width=8):
+    def color_chase(self, color, brightness=None, sleep_sec=0.1, reverse=False, effect_width=8):
         self.pixels.brightness = self._brightness(brightness)
         """ Creates a a moving set of leds, effect_width long, which move "around" the outer loop."""
         for i in range(self.outer_pixels + effect_width + 1):
@@ -232,10 +227,10 @@ class LedController:
                 time.sleep(sleep_sec)
 
     def spin(self, color, brightness=None, reverse=False, effect_width=8):
-        self.color_chase(color, self._brightness(brightness), .01, reverse, effect_width)
-        self.color_chase(color, self._brightness(brightness), .001, reverse, effect_width)
-        self.color_chase(color, self._brightness(brightness), .0001, reverse, effect_width)
-        self.color_chase(color, self._brightness(brightness), .0001, reverse, effect_width)
+        self.color_chase(color, self._brightness(brightness), 0.01, reverse, effect_width)
+        self.color_chase(color, self._brightness(brightness), 0.001, reverse, effect_width)
+        self.color_chase(color, self._brightness(brightness), 0.0001, reverse, effect_width)
+        self.color_chase(color, self._brightness(brightness), 0.0001, reverse, effect_width)
 
     def _brightness(self, brightness):
         if brightness:

@@ -1,4 +1,5 @@
-""" Provides helper functions which wrap pydub (with simpleaudio as the player)."""
+"""Provides helper functions which wrap pydub (with simpleaudio as the player)."""
+
 import os
 import threading
 import warnings
@@ -7,7 +8,7 @@ import warnings
 # pydub will still look for ffmpeg/avconv and ffplay/avplay and not find it
 # This will suppress those warnings
 with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
+    warnings.simplefilter("ignore")
     from pydub import AudioSegment
     from pydub.playback import play
     from pydub.utils import ratio_to_db
@@ -15,7 +16,7 @@ with warnings.catch_warnings():
 
 def load_sound(ctx, sound):
     with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
+        warnings.simplefilter("ignore")
 
         sound = AudioSegment.from_file(os.path.join(ctx.sound_dir, sound))
         # Adjust the volume on the sound based on user input

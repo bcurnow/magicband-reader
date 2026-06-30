@@ -7,7 +7,7 @@ class EventType(Enum):
     UNAUTHORIZED = auto()
 
 
-class Event():
+class Event:
     def __init__(self, rfid_id, ctx, type=None):
         self.id = rfid_id
         self.ctx = ctx

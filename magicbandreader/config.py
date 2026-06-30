@@ -1,4 +1,5 @@
-""" Implements a YAML-base config file for click-config-file."""
+"""Implements a YAML-base config file for click-config-file."""
+
 import os
 
 import yaml

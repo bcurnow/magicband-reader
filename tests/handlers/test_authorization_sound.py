@@ -7,7 +7,7 @@ AUTH_SOUND = object()
 UNAUTH_SOUND = object()
 
 
-@patch('magicbandreader.handlers.authorization_sound.load_sound')
+@patch("magicbandreader.handlers.authorization_sound.load_sound")
 def test_Handler___init__(load_sound, context):
     load_sound.side_effect = [AUTH_SOUND, UNAUTH_SOUND]
     h = Handler(context)
@@ -18,8 +18,8 @@ def test_Handler___init__(load_sound, context):
     load_sound.assert_has_calls([call(context, context.authorized_sound), call(context, context.unauthorized_sound)], any_order=False)
 
 
-@patch('magicbandreader.handlers.authorization_sound.play_sound')
-@patch('magicbandreader.handlers.authorization_sound.load_sound')
+@patch("magicbandreader.handlers.authorization_sound.play_sound")
+@patch("magicbandreader.handlers.authorization_sound.load_sound")
 def test_Handler_handle_authorized_event(load_sound, play_sound, context, auth_event):
     t = object()
     play_sound.return_value = t
@@ -29,8 +29,8 @@ def test_Handler_handle_authorized_event(load_sound, play_sound, context, auth_e
     assert context.authorization_sound_thread == t
 
 
-@patch('magicbandreader.handlers.authorization_sound.play_sound')
-@patch('magicbandreader.handlers.authorization_sound.load_sound')
+@patch("magicbandreader.handlers.authorization_sound.play_sound")
+@patch("magicbandreader.handlers.authorization_sound.load_sound")
 def test_Handler_handle_unauthorized_event(load_sound, play_sound, context, unauth_event):
     t = object()
     play_sound.return_value = t
@@ -40,7 +40,7 @@ def test_Handler_handle_unauthorized_event(load_sound, play_sound, context, unau
     assert context.authorization_sound_thread == t
 
 
-@patch('magicbandreader.handlers.authorization_sound.load_sound')
+@patch("magicbandreader.handlers.authorization_sound.load_sound")
 def test_register(load_sound, context):
     load_sound.side_effect = [AUTH_SOUND, UNAUTH_SOUND]
     h = register(context)

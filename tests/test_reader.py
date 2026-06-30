@@ -9,115 +9,110 @@ import magicbandreader.reader
 
 
 class Parameter:
-    """ A testing class that simulates a click Parameter. """
+    """A testing class that simulates a click Parameter."""
+
     def __init__(self, name):
         self.name = name
 
 
 @pytest.mark.parametrize(
-    ('param_name', 'value', 'expected', 'message'),
+    ("param_name", "value", "expected", "message"),
     [
-        (Parameter('test'), .5, .5, None),
-        (Parameter('test'), -1, BadParameter, re.escape('must be in the range 0.0 - 1.0 (inclusive)')),
-        (Parameter('test'), 2, BadParameter, re.escape('must be in the range 0.0 - 1.0 (inclusive)')),
-        (Parameter('brightness_level'), 0, 0, 'Brightness set to zero (0), no lights will be shown.'),
-        (Parameter('volume_level'), 0, 0, 'Volume set to zero (0), sound will not be audible.'),
+        (Parameter("test"), 0.5, 0.5, None),
+        (Parameter("test"), -1, BadParameter, re.escape("must be in the range 0.0 - 1.0 (inclusive)")),
+        (Parameter("test"), 2, BadParameter, re.escape("must be in the range 0.0 - 1.0 (inclusive)")),
+        (Parameter("brightness_level"), 0, 0, "Brightness set to zero (0), no lights will be shown."),
+        (Parameter("volume_level"), 0, 0, "Volume set to zero (0), sound will not be audible."),
     ],
-    ids=[
-        'success',
-        'too low',
-        'too high',
-        'brightness zero',
-        'volume zero'
-    ]
-    )
+    ids=["success", "too low", "too high", "brightness zero", "volume zero"],
+)
 def test__validate_float_percentage_range(param_name, value, expected, message):
     if expected is not BadParameter:
-        with patch('magicbandreader.reader.click') as click:
+        with patch("magicbandreader.reader.click") as click:
             actual = magicbandreader.reader._validate_float_percentage_range(None, param_name, value)
             assert actual == expected
             if message:
-                click.secho.assert_called_once_with(message, fg='red')
+                click.secho.assert_called_once_with(message, fg="red")
     else:
         with pytest.raises(BadParameter, match=message):
             magicbandreader.reader._validate_float_percentage_range(None, param_name, value)
 
 
 @pytest.mark.parametrize(
-    ('exists', 'exception_type'),
+    ("exists", "exception_type"),
     [
         (True, None),
         (False, BadParameter),
-    ]
-    )
-@patch('magicbandreader.reader.os')
+    ],
+)
+@patch("magicbandreader.reader.os")
 def test__validate_sound_file(os, exists, exception_type):
-    ctx = MockContext({'sound_dir': '/test'})
-    os.path.join.return_value = '/test'
+    ctx = MockContext({"sound_dir": "/test"})
+    os.path.join.return_value = "/test"
     os.path.exists.return_value = exists
     if exception_type:
-        with pytest.raises(exception_type, match='/test does not exist'):
-            magicbandreader.reader._validate_sound_file(ctx, None, 'test')
+        with pytest.raises(exception_type, match="/test does not exist"):
+            magicbandreader.reader._validate_sound_file(ctx, None, "test")
     else:
-        magicbandreader.reader._validate_sound_file(ctx, None, 'test')
-    os.path.join.assert_called_once_with('/test', 'test')
-    os.path.exists.assert_called_once_with('/test')
+        magicbandreader.reader._validate_sound_file(ctx, None, "test")
+    os.path.join.assert_called_once_with("/test", "test")
+    os.path.exists.assert_called_once_with("/test")
 
 
-@patch('magicbandreader.reader.os')
-@patch('magicbandreader.reader.Router')
-@patch('magicbandreader.reader.register_handlers')
-@patch('magicbandreader.reader.rfidreader')
-@patch('magicbandreader.reader.LedController')
-@patch('magicbandreader.reader.logging')
-@patch('magicbandreader.reader.SimpleNamespace')
+@patch("magicbandreader.reader.os")
+@patch("magicbandreader.reader.Router")
+@patch("magicbandreader.reader.register_handlers")
+@patch("magicbandreader.reader.rfidreader")
+@patch("magicbandreader.reader.LedController")
+@patch("magicbandreader.reader.logging")
+@patch("magicbandreader.reader.SimpleNamespace")
 def test_main(SimpleNamespace, logging, LedController, rfidreader, register_handlers, Router, os, context):
-    os.path.join.side_effect = lambda *args: '/'.join(args)
+    os.path.join.side_effect = lambda *args: "/".join(args)
     os.path.exists.return_value = True
     led_controller, reader, router = mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_handlers, context, Router)
-    result = CliRunner().invoke(magicbandreader.reader.main, ['-k', 'testing', '--reader-type', 'evdev', 'evdev-device_name', '/dev/input/rfid'])
+    result = CliRunner().invoke(magicbandreader.reader.main, ["-k", "testing", "--reader-type", "evdev", "evdev-device_name", "/dev/input/rfid"])
     assert_result(result)
     assert_logging(logging)
     assert_led(LedController, context, led_controller)
     register_handlers.assert_called_once_with(context)
-    rfidreader.RFIDReader.assert_called_once_with('evdev', {'device_name': '/dev/input/rfid'})
+    rfidreader.RFIDReader.assert_called_once_with("evdev", {"device_name": "/dev/input/rfid"})
     assert_loop(reader, router, context)
 
 
-@patch('magicbandreader.reader.os')
-@patch('magicbandreader.reader.Router')
-@patch('magicbandreader.reader.register_handlers')
-@patch('magicbandreader.reader.rfidreader')
-@patch('magicbandreader.reader.LedController')
-@patch('magicbandreader.reader.logging')
-@patch('magicbandreader.reader.SimpleNamespace')
+@patch("magicbandreader.reader.os")
+@patch("magicbandreader.reader.Router")
+@patch("magicbandreader.reader.register_handlers")
+@patch("magicbandreader.reader.rfidreader")
+@patch("magicbandreader.reader.LedController")
+@patch("magicbandreader.reader.logging")
+@patch("magicbandreader.reader.SimpleNamespace")
 def test_main_skips_none_read(SimpleNamespace, logging, LedController, rfidreader, register_handlers, Router, os, context):
-    os.path.join.side_effect = lambda *args: '/'.join(args)
+    os.path.join.side_effect = lambda *args: "/".join(args)
     os.path.exists.return_value = True
     led_controller, reader, router = mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_handlers, context, Router)
-    reader.read.side_effect = [None, BreakTheLoop('end')]
-    CliRunner().invoke(magicbandreader.reader.main, ['-k', 'testing', '--reader-type', 'evdev', 'evdev-device_name', '/dev/input/rfid'])
+    reader.read.side_effect = [None, BreakTheLoop("end")]
+    CliRunner().invoke(magicbandreader.reader.main, ["-k", "testing", "--reader-type", "evdev", "evdev-device_name", "/dev/input/rfid"])
     assert reader.read.call_count == 2
     router.route.assert_not_called()
 
 
 @pytest.mark.parametrize(
-    ('reader_type', 'args', 'expected'),
+    ("reader_type", "args", "expected"),
     [
-        ('evdev', None, {}),
-        ('evdev', [], {}),
-        ('evdev', ['missing partner'], ValueError),
-        ('evdev', ['not-for_you', 'bogus'], {}),
-        ('evdev', ['evdev-test_one', 1, 'evdev-test_two', 2], {'test_one': 1, 'test_two': 2}),
+        ("evdev", None, {}),
+        ("evdev", [], {}),
+        ("evdev", ["missing partner"], ValueError),
+        ("evdev", ["not-for_you", "bogus"], {}),
+        ("evdev", ["evdev-test_one", 1, "evdev-test_two", 2], {"test_one": 1, "test_two": 2}),
     ],
     ids=[
-        'No device config',
-        'Empty device config',
-        'Odd number of options',
-        'No device config for type',
-        'Some args',
-        ]
-    )
+        "No device config",
+        "Empty device config",
+        "Odd number of options",
+        "No device config for type",
+        "Some args",
+    ],
+)
 def test_parse_reader_args(reader_type, args, expected):
     if expected == ValueError:
         with pytest.raises(expected):
@@ -128,14 +123,14 @@ def test_parse_reader_args(reader_type, args, expected):
 
 
 def mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_handlers, context, Router):
-    """ This method takes care of setting up all the mock objects for main and returns the needed ones."""
+    """This method takes care of setting up all the mock objects for main and returns the needed ones."""
     SimpleNamespace.return_value = context
-    assert not hasattr(context, 'led_controller')
-    assert not hasattr(context, 'handlers')
+    assert not hasattr(context, "led_controller")
+    assert not hasattr(context, "handlers")
     led_controller = LedController.return_value
     register_handlers.return_value = []
     reader = rfidreader.RFIDReader.return_value
-    reader.read.side_effect = ['test_id', BreakTheLoop('This will cause the loop to end.')]
+    reader.read.side_effect = ["test_id", BreakTheLoop("This will cause the loop to end.")]
     router = Router.return_value
     return (led_controller, reader, router)
 
@@ -148,33 +143,29 @@ def assert_result(result):
 
 
 def assert_led(LedController, context, led_controller):
-    LedController.assert_called_once_with(
-        brightness=.5,
-        outer_pixels=40,
-        inner_pixels=15
-    )
-    assert hasattr(context, 'led_controller')
+    LedController.assert_called_once_with(brightness=0.5, outer_pixels=40, inner_pixels=15)
+    assert hasattr(context, "led_controller")
     assert context.led_controller == led_controller
 
 
 def assert_logging(logging):
     logging.basicConfig.assert_called_once_with(
-        level=logging.WARNING,
-        format='%(asctime)s %(levelname)s %(pathname)s (line: %(lineno)d): %(message)s'
+        level=logging.WARNING, format="%(asctime)s %(levelname)s %(pathname)s (line: %(lineno)d): %(message)s"
     )
-    logging.info.assert_called_once_with('Waiting for MagicBand...')
+    logging.info.assert_called_once_with("Waiting for MagicBand...")
 
 
 def assert_loop(reader, router, context):
-    assert hasattr(context, 'handlers')
+    assert hasattr(context, "handlers")
     assert context.handlers == []
     assert reader.read.call_count == 2
     reader.read.assert_has_calls([call(), call()], any_order=False)
-    router.route.assert_called_once_with(EqualEvent('test_id', context))
+    router.route.assert_called_once_with(EqualEvent("test_id", context))
 
 
 class EqualEvent(Event):
-    """ Adds an __eq__ implementation to allow us to assert the call to handle_event."""
+    """Adds an __eq__ implementation to allow us to assert the call to handle_event."""
+
     def __eq__(self, other):
         return self.id == other.id and self.ctx == other.ctx
 

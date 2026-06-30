@@ -5,47 +5,42 @@ import pytest
 from magicbandreader.led import LedController, LedColor
 
 
-DEFAULT_BRIGHTNESS = .5
+DEFAULT_BRIGHTNESS = 0.5
 
 
-@patch('magicbandreader.led.neopixel')
-@patch('magicbandreader.led.time')
+@patch("magicbandreader.led.neopixel")
+@patch("magicbandreader.led.time")
 def test__init__(time, neopixel):
     pixels = neopixel.NeoPixel.return_value
-    mock_brightness = PropertyMock(name='neopixel.NeoPixel.brightness')
+    mock_brightness = PropertyMock(name="neopixel.NeoPixel.brightness")
     type(pixels).brightness = mock_brightness
     led = LedController(DEFAULT_BRIGHTNESS, 10, 20)
     assert led.brightness == DEFAULT_BRIGHTNESS
     assert led.outer_pixels == 10
     assert led.inner_pixels == 20
     assert led.pixels == pixels
-    neopixel.NeoPixel.assert_called_once_with(board.D18,
-                                              30,
-                                              brightness=DEFAULT_BRIGHTNESS,
-                                              auto_write=False,
-                                              pixel_order=neopixel.GRB
-                                              )
-    assert_blink(time, pixels, mock_brightness, LedColor.WHITE, DEFAULT_BRIGHTNESS, 2, .5)
+    neopixel.NeoPixel.assert_called_once_with(board.D18, 30, brightness=DEFAULT_BRIGHTNESS, auto_write=False, pixel_order=neopixel.GRB)
+    assert_blink(time, pixels, mock_brightness, LedColor.WHITE, DEFAULT_BRIGHTNESS, 2, 0.5)
 
 
-@patch('magicbandreader.led.neopixel')
-@patch('magicbandreader.led.time')
+@patch("magicbandreader.led.neopixel")
+@patch("magicbandreader.led.time")
 def test_startup_sequence(time, neopixel):
     led, mock_brightness = led_controller(time, neopixel)
     led.startup_sequence()
-    assert_blink(time, led.pixels, mock_brightness, LedColor.WHITE, DEFAULT_BRIGHTNESS, 2, .5)
+    assert_blink(time, led.pixels, mock_brightness, LedColor.WHITE, DEFAULT_BRIGHTNESS, 2, 0.5)
 
 
-@patch('magicbandreader.led.neopixel')
-@patch('magicbandreader.led.time')
+@patch("magicbandreader.led.neopixel")
+@patch("magicbandreader.led.time")
 def test_blink(time, neopixel):
     led, mock_brightness = led_controller(time, neopixel)
     led.blink(LedColor.WHITE)
     assert_blink(time, led.pixels, mock_brightness, LedColor.WHITE)
 
 
-@patch('magicbandreader.led.neopixel')
-@patch('magicbandreader.led.time')
+@patch("magicbandreader.led.neopixel")
+@patch("magicbandreader.led.time")
 def test_lights_on(time, neopixel):
     led, mock_brightness = led_controller(time, neopixel)
     led.lights_on(LedColor.WHITE, DEFAULT_BRIGHTNESS)
@@ -54,19 +49,19 @@ def test_lights_on(time, neopixel):
     led.pixels.show.assert_called_once()
 
 
-@patch('magicbandreader.led.neopixel')
-@patch('magicbandreader.led.time')
+@patch("magicbandreader.led.neopixel")
+@patch("magicbandreader.led.time")
 def test_fade_on(time, neopixel):
     led, mock_brightness = led_controller(time, neopixel)
-    led.fade_on(LedColor.WHITE, DEFAULT_BRIGHTNESS, sleep_sec=.01)
+    led.fade_on(LedColor.WHITE, DEFAULT_BRIGHTNESS, sleep_sec=0.01)
     assert_has_call_count(led.pixels.fill, call(LedColor.WHITE.value))
     assert_has_call_count(mock_brightness, fade_brightness_changes())
     assert_has_call_count(led.pixels.show, call(), DEFAULT_BRIGHTNESS * 100)
-    assert_has_call_count(time.sleep, call(.01), DEFAULT_BRIGHTNESS * 100)
+    assert_has_call_count(time.sleep, call(0.01), DEFAULT_BRIGHTNESS * 100)
 
 
-@patch('magicbandreader.led.neopixel')
-@patch('magicbandreader.led.time')
+@patch("magicbandreader.led.neopixel")
+@patch("magicbandreader.led.time")
 def test_lights_off(time, neopixel):
     led, _ = led_controller(time, neopixel)
     led.lights_off()
@@ -74,28 +69,28 @@ def test_lights_off(time, neopixel):
     led.pixels.show.assert_called_once()
 
 
-@patch('magicbandreader.led.neopixel')
-@patch('magicbandreader.led.time')
+@patch("magicbandreader.led.neopixel")
+@patch("magicbandreader.led.time")
 def test_fade_off(time, neopixel):
     led, mock_brightness = led_controller(time, neopixel)
-    led.fade_off(brightness=DEFAULT_BRIGHTNESS, sleep_sec=.01)
+    led.fade_off(brightness=DEFAULT_BRIGHTNESS, sleep_sec=0.01)
     assert_has_call_count(mock_brightness, fade_brightness_changes(DEFAULT_BRIGHTNESS, on=False))
     assert_has_call_count(led.pixels.show, call(), (DEFAULT_BRIGHTNESS * 100) + 1)
-    assert_has_call_count(time.sleep, call(.01), (DEFAULT_BRIGHTNESS * 100) + 1)
+    assert_has_call_count(time.sleep, call(0.01), (DEFAULT_BRIGHTNESS * 100) + 1)
     led.pixels.fill.assert_called_once_with(0)
 
 
-@patch('magicbandreader.led.neopixel')
-@patch('magicbandreader.led.time')
+@patch("magicbandreader.led.neopixel")
+@patch("magicbandreader.led.time")
 @pytest.mark.parametrize(
-    ('sleep_sec', 'reverse', 'effect_width'),
+    ("sleep_sec", "reverse", "effect_width"),
     [
-        (.01, False, 8),
-        (.01, False, 12),
-        (.01, True, 8),
+        (0.01, False, 8),
+        (0.01, False, 12),
+        (0.01, True, 8),
         (20, False, 8),
-    ]
-    )
+    ],
+)
 def test_color_chase(time, neopixel, sleep_sec, reverse, effect_width):
     led, mock_brightness = led_controller(time, neopixel, outer_pixels=40, inner_pixels=0)
     led.color_chase(LedColor.GREEN, DEFAULT_BRIGHTNESS, sleep_sec=sleep_sec, reverse=reverse, effect_width=effect_width)
@@ -106,16 +101,16 @@ def test_color_chase(time, neopixel, sleep_sec, reverse, effect_width):
 
 
 @pytest.mark.parametrize(
-    ('reverse', 'effect_width'),
+    ("reverse", "effect_width"),
     [
         (False, 8),
         (False, 12),
         (True, 8),
         (False, 8),
-    ]
-    )
-@patch('magicbandreader.led.neopixel')
-@patch('magicbandreader.led.time')
+    ],
+)
+@patch("magicbandreader.led.neopixel")
+@patch("magicbandreader.led.time")
 def test_spin(time, neopixel, reverse, effect_width):
     led, mock_brightness = led_controller(time, neopixel, outer_pixels=40, inner_pixels=0)
     led.spin(LedColor.BLUE, DEFAULT_BRIGHTNESS, reverse=reverse, effect_width=effect_width)
@@ -123,10 +118,10 @@ def test_spin(time, neopixel, reverse, effect_width):
     assert_has_call_count(led.pixels.__setitem__, color_chase_pixel_changes(LedColor.BLUE, 40, effect_width, reverse) * 4)
     assert_has_call_count(led.pixels.show, call(), (40 + effect_width + 1) * 4)
     sleep_calls = [
-        *[call(.01)] * (40 + effect_width),
-        *[call(.001)] * (40 + effect_width),
-        *[call(.0001)] * ((40 + effect_width) * 2),
-        ]
+        *[call(0.01)] * (40 + effect_width),
+        *[call(0.001)] * (40 + effect_width),
+        *[call(0.0001)] * ((40 + effect_width) * 2),
+    ]
     assert_has_call_count(time.sleep, sleep_calls)
 
 
@@ -136,12 +131,12 @@ def led_controller(time, neopixel, outer_pixels=1, inner_pixels=1):
     time.reset_mock(return_value=DEFAULT_BRIGHTNESS)
     neopixel.reset_mock
     led.pixels.reset_mock()
-    mock_brightness = PropertyMock(name='neopixel.NeoPixel.brightness')
+    mock_brightness = PropertyMock(name="neopixel.NeoPixel.brightness")
     type(led.pixels).brightness = mock_brightness
     return (led, mock_brightness)
 
 
-def assert_blink(time, pixels, mock_brightness, color, brightness=DEFAULT_BRIGHTNESS, iterations=3, sleep_sec=.25):
+def assert_blink(time, pixels, mock_brightness, color, brightness=DEFAULT_BRIGHTNESS, iterations=3, sleep_sec=0.25):
     # Make sure that the brightness property is being reset to the default
     assert_has_call_count(mock_brightness, call(brightness), iterations + 1)
     assert_has_call_count(pixels.fill, [call(color.value), call(0)], iterations)

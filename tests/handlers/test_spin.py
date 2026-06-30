@@ -10,7 +10,7 @@ def test_Handler___init__(context_with_led_controller):
     assert h.ctx == context_with_led_controller
 
 
-@patch('magicbandreader.handlers.spin.threading')
+@patch("magicbandreader.handlers.spin.threading")
 def test_Handler_handle_event(threading, context_with_led_controller, auth_event):
     h = Handler(context_with_led_controller)
     t = threading.Thread.return_value
