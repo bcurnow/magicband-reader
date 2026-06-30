@@ -17,8 +17,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   loop now checks `is not None` instead of truthiness.
 - `LedController._brightness` now honors an explicit `brightness=0.0` instead of
   silently falling back to the instance default.
-
-## [1.0.0] - 2026-06-30
 ### Changed
 - Modernized the project for Python 3.13: updated the Docker base image to
   `python:3.13-slim`, replaced `scripts/build.sh`/`scripts/docker.sh` with a
