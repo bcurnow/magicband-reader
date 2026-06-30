@@ -64,13 +64,16 @@ def test__validate_sound_file(os, exists, exception_type):
     os.path.exists.assert_called_once_with('/test')
 
 
+@patch('magicbandreader.reader.os')
 @patch('magicbandreader.reader.Router')
 @patch('magicbandreader.reader.register_handlers')
 @patch('magicbandreader.reader.rfidreader')
 @patch('magicbandreader.reader.LedController')
 @patch('magicbandreader.reader.logging')
 @patch('magicbandreader.reader.SimpleNamespace')
-def test_main(SimpleNamespace, logging, LedController, rfidreader, register_handlers, Router, context):
+def test_main(SimpleNamespace, logging, LedController, rfidreader, register_handlers, Router, os, context):
+    os.path.join.side_effect = lambda *args: '/'.join(args)
+    os.path.exists.return_value = True
     led_controller, reader, router = mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_handlers, context, Router)
     result = CliRunner().invoke(magicbandreader.reader.main, ['-k', 'testing', '--reader-type', 'evdev', 'evdev-device_name', '/dev/input/rfid'])
     assert_result(result)
@@ -79,6 +82,23 @@ def test_main(SimpleNamespace, logging, LedController, rfidreader, register_hand
     register_handlers.assert_called_once_with(context)
     rfidreader.RFIDReader.assert_called_once_with('evdev', {'device_name': '/dev/input/rfid'})
     assert_loop(reader, router, context)
+
+
+@patch('magicbandreader.reader.os')
+@patch('magicbandreader.reader.Router')
+@patch('magicbandreader.reader.register_handlers')
+@patch('magicbandreader.reader.rfidreader')
+@patch('magicbandreader.reader.LedController')
+@patch('magicbandreader.reader.logging')
+@patch('magicbandreader.reader.SimpleNamespace')
+def test_main_skips_none_read(SimpleNamespace, logging, LedController, rfidreader, register_handlers, Router, os, context):
+    os.path.join.side_effect = lambda *args: '/'.join(args)
+    os.path.exists.return_value = True
+    led_controller, reader, router = mock_objects_for_main(SimpleNamespace, LedController, rfidreader, register_handlers, context, Router)
+    reader.read.side_effect = [None, BreakTheLoop('end')]
+    CliRunner().invoke(magicbandreader.reader.main, ['-k', 'testing', '--reader-type', 'evdev', 'evdev-device_name', '/dev/input/rfid'])
+    assert reader.read.call_count == 2
+    router.route.assert_not_called()
 
 
 @pytest.mark.parametrize(

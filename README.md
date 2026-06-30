@@ -47,3 +47,60 @@ inner_pixel_count: 15
 ```
 
 Much like the environment variables, the long name is used, leading dashes are removed and all other dashes become underscores
+
+# Development
+
+## Makefile
+
+A `Makefile` is provided with targets for common development tasks:
+
+```
+make setup        Create .venv and install all dependencies
+make install      Install dependencies into the active environment
+make test         Run the test suite
+make coverage     Run tests and report coverage
+make lint         Check code with ruff
+make format       Format code with ruff
+make build        Build the Python wheel
+make clean        Remove build artifacts (CLEAN_VENV=1 also removes .venv)
+make release      Create a GitHub release (VERSION=x.y.z)
+make docker-build Build the Docker image
+make docker-run   Run a shell in the Docker container
+```
+
+Run `make help` to see this list at any time.
+
+## Local Python Environment
+
+On Linux, ensure the following system packages are installed before running `make setup`:
+
+```bash
+sudo apt-get install build-essential python3-dev
+```
+
+Use the `setup` target to create a virtual environment and install all dependencies:
+
+```bash
+make setup
+source .venv/bin/activate
+```
+
+After activating, use `make test`, `make lint`, etc. directly — they resolve to the venv Python automatically.
+
+## Docker Environment
+
+Docker is the preferred environment when testing against real hardware, as it handles device access and mounts the sounds directory automatically.
+
+Build the image:
+
+```bash
+make docker-build
+```
+
+Run a shell inside the container (mounts the project root, `/dev`, and `../sounds`):
+
+```bash
+make docker-run
+```
+
+Inside the container, run tests or start an interactive session with full hardware access. The container runs as a non-root user matching your host's user and group IDs.

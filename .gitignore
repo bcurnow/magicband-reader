@@ -128,6 +128,12 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Virtual environment
+.venv
+
+# Ruff cache
+.ruff_cache
+
 # Application specific
 ca.pem
 sounds/

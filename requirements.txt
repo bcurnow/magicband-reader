@@ -1,10 +1,11 @@
+audioop-lts
 pytest
 coverage
+ruff
 wheel
-flake8
 click
 click-config-file
-git+https://github.com/bcurnow/rfid-reader.git#egg=rfidreader[evdev, mfrc522]
+rfidreader[evdev,mfrc522] @ git+https://github.com/bcurnow/rfid-reader.git
 requests
 adafruit-circuitpython-neopixel
 rpi-ws281x
