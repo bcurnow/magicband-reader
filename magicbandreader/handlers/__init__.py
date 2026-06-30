@@ -29,15 +29,15 @@ class AbstractHandler:
 
     def handle_authorized_event(self, event):
         """Called when authorization for an event has succeeded."""
-        logging.debug(f"Processing an authorized event within the AbstractHandler")
+        logging.debug("Processing an authorized event within the AbstractHandler")
 
     def handle_unauthorized_event(self, event):
         """Called when authorization for an event has failed."""
-        logging.debug(f"Processing an unauthorized event within the AbstractHandler")
+        logging.debug("Processing an unauthorized event within the AbstractHandler")
 
     def handle_none_event(self, event):
         """Called when reading an event returns None. This isn't supposed to happen and should be considered exceptional."""
-        logging.debug(f"Processing a none event within the AbstractHandler (this should not be possible!)")
+        logging.debug("Processing a none event within the AbstractHandler (this should not be possible!)")
 
 
 def register_handlers(ctx):

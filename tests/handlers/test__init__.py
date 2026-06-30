@@ -73,7 +73,7 @@ def test_AbstractHandler_handle_event_notype(logging):
 @patch("magicbandreader.handlers.import_module")
 @patch("magicbandreader.handlers.iter_modules")
 def test_register_handlers(iter_modules, import_module):
-    testhandlers = _import_testhandlers()
+    _import_testhandlers()
     import testhandlers.one
     import testhandlers.two
     import testhandlers.three

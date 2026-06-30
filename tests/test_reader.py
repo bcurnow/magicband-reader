@@ -114,7 +114,7 @@ def test_main_skips_none_read(SimpleNamespace, logging, LedController, rfidreade
     ],
 )
 def test_parse_reader_args(reader_type, args, expected):
-    if expected == ValueError:
+    if expected is ValueError:
         with pytest.raises(expected):
             magicbandreader.reader.parse_reader_args(reader_type, args)
     else:
@@ -139,7 +139,7 @@ def assert_result(result):
     # Since we threw an IOError, the command should exit with error code 1
     assert result.exit_code == 1
     # The IOError should be wrapped in an OSError
-    assert type(result.exception) == BreakTheLoop
+    assert isinstance(result.exception, BreakTheLoop)
 
 
 def assert_led(LedController, context, led_controller):
